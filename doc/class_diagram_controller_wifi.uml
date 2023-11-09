@@ -1,0 +1,142 @@
+@startuml
+
+
+enum EState
+{
+  Idle
+  Connecting
+  Connected
+  Error
+} 
+
+
+interface WifiState
+{
+  # {abstract} init(parent : WifiController*)
+  # {abstract} loop(parent : WifiController*)
+  # {abstract} getState() : EState
+}
+
+
+class WifiStateIdle
+{
+  + init(parent : WifiController*)
+  + loop(parent : WifiController*)
+  + getState() : EState
+}
+
+
+class WifiStateConnecting
+{
+  - CurrentNetworkIndex : uint8_t
+  - SameNetworkConnectRetries : uint8_t
+  - NextConnectionAttempt : uint32_t
+  ----
+  + init(parent : WifiController*)
+  + loop(parent : WifiController*)
+  + getState() : EState
+}
+
+
+class WifiStateConnected
+{
+  + init(parent : WifiController*)
+  + loop(parent : WifiController*)
+  + getState() : EState
+}
+
+
+class WifiStateError
+{
+  + init(parent : WifiController*)
+  + loop(parent : WifiController*)
+  + getState() : EState
+}
+
+
+interface WifiStateAction
+{
+  # {abstract} idle()
+  # {abstract} connecting()
+  # {abstract} connected()
+  # {abstract} disconnected()
+  # {abstract} error()
+}
+
+
+
+struct WifiNetwork
+{
+  + SSID : char[]
+  + Password : char[]
+}
+
+
+class WifiSettings
+{
+  # Networks : WifiNetwork[]
+  # NetworkCount : uint8_t
+  ----
+  + init()
+  + setNetwork(SSID : char*, Password : char*)
+  + getNetworkCount() : uint8_t
+  + getNetworkSSID(Index : uint8_t) : char*
+  + getNetworkPassword(Index : uint8_t) : char*
+  ....
+  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
+  + unserialize(Buffer : uint8_t *, Size : uint16_t)
+}
+
+
+class WifiController
+{
+  - Settings : WifiSettings* 
+  ....
+  - StateIdle : WifiStateIdle
+  - StateConnecting : WifiStateConnecting
+  - StateConnected : WifiStateConnected
+  - StateError : WifiStateError
+  ....
+  - CurrentState : WifiState*
+  - StateAction : WifiStateAction* 
+  ----
+  + WifiController(p_Settings : WifiSettings*, p_StateAction : WifiStateAction*)
+  + setSettings(p_Settings : WifiSettings*)
+  + getSettings() : WifiSettings*
+  + setStateAction(p_StateAction : WifiStateAction*)
+  + getStateAction() : WifiStateAction*
+  ....
+  + setup()
+  + loop()
+  ....
+  + begin()
+  + end()
+  + getState() : EState
+  + getLocalIp() : IPAddress
+  ....
+  - setState(e_NewState : EState)
+  - setCurrentSSID(SSID : char*)
+}
+
+
+WifiStateIdle <-right[hidden]- WifiStateConnecting
+WifiStateConnecting <-right[hidden]- WifiStateConnected
+WifiStateConnected <-right[hidden]- WifiStateError
+
+
+WifiStateIdle .up.|> WifiState
+WifiStateConnecting .up.|> WifiState
+WifiStateConnected .up.|> WifiState
+WifiStateError .up.|> WifiState
+
+WifiController *-up- WifiStateIdle
+WifiController *-up- WifiStateConnecting 
+WifiController *-up- WifiStateConnected
+WifiController *-up- WifiStateError
+WifiController o-up- WifiState
+
+WifiSettings *-right- WifiNetwork
+WifiSettings -left-o WifiController
+WifiStateAction -right-o WifiController
+
+@enduml
