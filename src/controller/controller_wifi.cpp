@@ -14,8 +14,8 @@
 
 
 
-#define CONNECTION_RETRY_INTERVAL     500   // in ms
-#define MAX_SAME_NETWORK_RETRY_COUNT    5
+#define CONNECTION_RETRY_INTERVAL     750   // in ms
+#define MAX_SAME_NETWORK_RETRY_COUNT    4
 
 
 
@@ -113,6 +113,8 @@ void WifiStateConnecting::init(WifiController *p_Controller)
 
 void WifiStateConnecting::loop(WifiController *p_Controller)
 {
+  char ac_DbgConnectMsg[80];
+
   if(!p_Controller)
     return;
 
@@ -135,16 +137,19 @@ void WifiStateConnecting::loop(WifiController *p_Controller)
     if(mu8_SameNetworkConnectRetries>MAX_SAME_NETWORK_RETRY_COUNT)
     {
       mu8_CurrentNetworkIndex++;
-      if(mu8_CurrentNetworkIndex>p_WifiSettings->getNetworkCount())
-        mu8_CurrentNetworkIndex=0;  
+      if(mu8_CurrentNetworkIndex>=p_WifiSettings->getNetworkCount())
+        mu8_CurrentNetworkIndex=0;         
       mu8_SameNetworkConnectRetries = 1;   
     }
 
-    char ac_DbgConnectMsg[80];
+    //snprintf(ac_DbgConnectMsg, 80, "Network %i/%i:", mu8_CurrentNetworkIndex+1, p_WifiSettings->getNetworkCount());
+    //debug.println(Debug::Info, ac_DbgConnectMsg); 
+    //Serial.flush();
+
     snprintf(ac_DbgConnectMsg, 80, "Trying to connect to \"%s\"", p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex));
-    debug.println(Debug::Info, ac_DbgConnectMsg); 
+    debug.println(Debug::Info, ac_DbgConnectMsg);
     
-    WiFi.begin(p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex), p_WifiSettings->getNetworkPassword(mu8_CurrentNetworkIndex));   // TODO: select other networks 
+    WiFi.begin(p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex), p_WifiSettings->getNetworkPassword(mu8_CurrentNetworkIndex));    
     mu32_NextConnectionAttempt = millis()+CONNECTION_RETRY_INTERVAL;
   }
 }
