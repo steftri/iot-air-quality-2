@@ -8,6 +8,7 @@
 #include "model/settings.h"
 
 #include "controller/controller_wifi.h"
+#include "controller/controller_mqtt.h"
 
 #include "view/view.h"
 
@@ -23,7 +24,14 @@ class MyWifiStateAction : public WifiStateAction
 };
 
 
-
+class MyMqttStateAction : public MqttStateAction
+{
+  void idle(void) override;
+  void connecting(void) override;
+  void connected(void) override;
+  void disconnected(void) override;
+  void error(void) override;
+};
 
 
 class ControllerFacade
@@ -44,6 +52,8 @@ private:
   MyWifiStateAction    m_WifiStateAction;
   WifiController       m_WifiController; 
 
+  MyMqttStateAction    m_MqttStateAction;
+  MqttController       m_MqttController; 
 
 public:
   ControllerFacade(ViewFacade *p_ViewFacade);
@@ -60,14 +70,18 @@ public:
   void printSettings(void);
 
   void setWifiSettings(const char *pc_SSID, const char *pc_Passphrase); 
-  void setTcpSettings(const uint16_t u16_Port);
-  uint16_t getTcpPort(void);
 
   void connectWifi(const char *pc_SSID, const char *pc_Passphrase);
   void connectWifi(void);
   void disconnectWifi(void);
   String getCurrentIP(void);
   void printWifiStatus(void);
+
+  void setMqttSettings(const char *pc_BrokerAddr); 
+  void setMqttSettings(const char *pc_BrokerAddr, const uint16_t u16_BrokerPort); 
+  void connectMqtt(void);
+  void disconnectMqtt(void);
+  void printMqttStatus(void);
 };
 
 

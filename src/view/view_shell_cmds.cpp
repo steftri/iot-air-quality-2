@@ -109,9 +109,18 @@ int ViewShellCommands::cmdSet(int argc, char *argv[])
     myController.setWifiSettings(argv[2], argv[3]);
     return 0;
   } 
+  else if((argc==3 || argc==4) && !strcmp("mqtt", argv[1]))
+  {
+    if(argc==4)
+      myController.setMqttSettings(argv[2], atoi(argv[3]));
+    else
+      myController.setMqttSettings(argv[2]);
+    return 0;
+  } 
 
   Serial.println("Usage:");
   Serial.println("  set wifi <SSID> <key>");
+  Serial.println("  set mqtt <addr> [<port>]");
   return 0;  
 }
 
@@ -146,3 +155,28 @@ int ViewShellCommands::cmdWifi(int argc, char *argv[])
   return 0;
 }
 
+
+int ViewShellCommands::cmdMqtt(int argc, char *argv[])
+{
+  if(argc==2 && !strcmp("status", argv[1]))
+  {
+    myController.printMqttStatus();
+    return 0;
+  } 
+  else if(argc==2 && !strcmp("connect", argv[1]))
+  {
+    myController.connectMqtt();
+    return 0;
+  } 
+  else if(argc==2 && !strcmp("disconnect", argv[1]))
+  {
+    myController.disconnectMqtt();
+    return 0;
+  } 
+  
+  Serial.println("Usage:");
+  Serial.println("  mqtt status");
+  Serial.println("  mqtt connect");
+  Serial.println("  mqtt disconnect");  
+  return 0;
+}

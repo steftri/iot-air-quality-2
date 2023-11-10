@@ -4,10 +4,15 @@
 
 #include "LedIndicatorAdapter.h"
 
+#define LED_WIFI   27    // LED_BUILTIN
+#define LED_MQTT   33
 
-LedIndicatorAdapter myWifiIndicatorAdapter(LED_BUILTIN);
+
+LedIndicatorAdapter myWifiIndicatorAdapter(LED_WIFI);
 Indicator myWifiIndicator(&myWifiIndicatorAdapter);
 
+LedIndicatorAdapter myMqttIndicatorAdapter(LED_MQTT);
+Indicator myMqttIndicator(&myMqttIndicatorAdapter);
 
 
 extern ControllerFacade myController;
@@ -43,6 +48,32 @@ void MyWifiStateAction::error(void)
 
 
 
+void MyMqttStateAction::idle(void) 
+{
+  myMqttIndicator.clear();
+}
+
+void MyMqttStateAction::connecting(void) 
+{
+  myMqttIndicator.blink();
+}
+
+void MyMqttStateAction::connected(void) 
+{
+  myMqttIndicator.set();
+}
+
+void MyMqttStateAction::disconnected(void) 
+{
+  myMqttIndicator.clear();
+}
+
+void MyMqttStateAction::error(void) 
+{
+  myMqttIndicator.blink();
+}  
+
+
 
 
 
@@ -51,6 +82,9 @@ ControllerFacade::ControllerFacade(ViewFacade *p_ViewFacade)
 {
   m_WifiController.setSettings(m_Settings.getWifiSettings());
   m_WifiController.setStateAction(&m_WifiStateAction);
+
+  m_MqttController.setSettings(m_Settings.getMqttSettings());
+  m_MqttController.setStateAction(&m_MqttStateAction);  
 }
 
 
@@ -63,6 +97,7 @@ ViewFacade *ControllerFacade::getViewFacade(void)
 void ControllerFacade::setup(void)
 {
   m_WifiController.setup();
+  m_MqttController.setup();
 
   if(m_Settings.load()==Settings::Ok)
   {
@@ -81,6 +116,7 @@ void ControllerFacade::setup(void)
 void ControllerFacade::loop(void)
 {
   m_WifiController.loop();
+  m_MqttController.loop();
 }
 
 
@@ -121,6 +157,11 @@ void ControllerFacade::printSettings(void)
     Serial.print("  ");
     Serial.println(m_Settings.getWifiSettings()->getNetworkSSID(i));
   }
+
+  Serial.print("MQTT Broker: ");
+  Serial.print(m_Settings.getMqttSettings()->getBrokerAddr());
+  Serial.print(", Port: ");  
+  Serial.println(m_Settings.getMqttSettings()->getBrokerPort());
 }
 
 
@@ -129,10 +170,6 @@ void ControllerFacade::setWifiSettings(const char *pc_SSID, const char *pc_Passp
 {
   m_Settings.getWifiSettings()->setNetwork(pc_SSID, pc_Passphrase);
 }
-
-
-
-
 
 
 
@@ -151,10 +188,6 @@ void ControllerFacade::connectWifi(void)
 {
   m_WifiController.begin();
 }
-
-
-
-
 
 
 void ControllerFacade::disconnectWifi(void)
@@ -197,5 +230,45 @@ void ControllerFacade::printWifiStatus(void)
       Serial.println(WiFi.SSID(i));
     }
     */
+  }
+}
+
+
+
+
+void ControllerFacade::setMqttSettings(const char *pc_BrokerAddr, const uint16_t u16_BrokerPort)
+{
+  m_Settings.getMqttSettings()->setBroker(pc_BrokerAddr, u16_BrokerPort);
+} 
+
+void ControllerFacade::setMqttSettings(const char *pc_BrokerAddr)
+{
+  m_Settings.getMqttSettings()->setBroker(pc_BrokerAddr);
+} 
+
+
+void ControllerFacade::connectMqtt(void)
+{
+  m_MqttController.begin();
+}
+
+
+void ControllerFacade::disconnectMqtt(void)
+{
+  m_MqttController.end();  
+}
+
+
+void ControllerFacade::printMqttStatus(void)
+{
+  Serial.print("Status: ");
+  auto MqttState = m_MqttController.getState(); 
+  switch(MqttState)
+  {
+    case MqttState::Idle:       Serial.println("idle"); break;
+    case MqttState::Connecting: Serial.println("connecting"); break;
+    case MqttState::Connected:  Serial.print("connected"); break;
+    case MqttState::Error:      Serial.println("ERROR"); break;
+    default: Serial.println("unknown"); break;
   }
 }

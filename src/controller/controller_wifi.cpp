@@ -8,8 +8,6 @@
 #include <WiFi.h>
 #endif
 
-#include "LedIndicatorAdapter.h"
-
 #include "controller_wifi.h"
 
 
@@ -113,7 +111,7 @@ void WifiStateConnecting::init(WifiController *p_Controller)
 
 void WifiStateConnecting::loop(WifiController *p_Controller)
 {
-  char ac_DbgConnectMsg[80];
+
 
   if(!p_Controller)
     return;
@@ -146,6 +144,7 @@ void WifiStateConnecting::loop(WifiController *p_Controller)
     //debug.println(Debug::Info, ac_DbgConnectMsg); 
     //Serial.flush();
 
+    char ac_DbgConnectMsg[80];
     snprintf(ac_DbgConnectMsg, 80, "Trying to connect to \"%s\"", p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex));
     debug.println(Debug::Info, ac_DbgConnectMsg);
     

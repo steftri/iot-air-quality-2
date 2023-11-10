@@ -11,6 +11,7 @@ public:
   static int cmdSettings(int argc, char *argv[]);
   static int cmdSet(int argc, char *argv[]);
   static int cmdWifi(int argc, char *argv[]);
+  static int cmdMqtt(int argc, char *argv[]);
 };
 
 

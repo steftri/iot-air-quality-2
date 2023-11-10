@@ -5,6 +5,7 @@
 #include <inttypes.h>
 
 #include "model_wifi_settings.h"
+#include "model_mqtt_settings.h"
 
 
 class Settings
@@ -19,6 +20,7 @@ public:
 
 private:
   WifiSettings m_WifiSettings;
+  MqttSettings m_MqttSettings;
 
 public:
   Settings(void);
@@ -30,6 +32,7 @@ public:
   void clear(void);
 
   WifiSettings *getWifiSettings(void);
+  MqttSettings *getMqttSettings(void);
 };
 
 

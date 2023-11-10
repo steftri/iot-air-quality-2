@@ -1,0 +1,126 @@
+#ifndef _CONTROLLER_MQTT_H_
+#define _CONTROLLER_MQTT_H_
+
+#include <inttypes.h>
+
+#include "model/model_mqtt_settings.h"
+
+
+#define MAX_MQTT_MESSAGE        256
+#define MAX_MQTT_TOPIC           64
+
+
+class MqttController;
+
+
+
+
+class MqttState
+{
+public:
+  typedef enum {Idle, Connecting, Connected, Error} EState;
+
+  virtual void init(MqttController *p_Controller = nullptr) = 0;
+  virtual void loop(MqttController *p_Controller = nullptr) = 0;
+  virtual EState getState(void) = 0;
+};
+
+
+class MqttStateConnecting : public MqttState
+{
+  uint32_t mu32_NextConnectionAttempt;
+  uint16_t mu16_ConnectionAttempts;
+public:
+  void init(MqttController *p_Controller = nullptr);
+  void loop(MqttController *p_Controller = nullptr);
+  EState getState(void);
+};
+
+
+class MqttStateConnected : public MqttState
+{
+public:
+  void init(MqttController *p_Controller = nullptr);
+  void loop(MqttController *p_Controller = nullptr);
+  EState getState(void);
+};
+
+
+class MqttStateIdle : public MqttState
+{
+public:
+  void init(MqttController *p_Controller = nullptr);
+  void loop(MqttController *p_Controller = nullptr);
+  EState getState(void);
+};
+
+
+class MqttStateError : public MqttState
+{
+public:
+  void init(MqttController *p_Controller = nullptr);
+  void loop(MqttController *p_Controller = nullptr);
+  EState getState(void);
+};
+
+
+
+
+class MqttStateAction
+{
+  friend class MqttStateIdle;
+  friend class MqttStateConnecting;
+  friend class MqttStateConnected;
+  friend class MqttStateError;
+
+protected:
+  virtual void idle(void) = 0;
+  virtual void connecting(void) = 0;
+  virtual void connected(void) = 0;
+  virtual void disconnected(void) = 0;  
+  virtual void error(void) = 0;
+};
+
+
+
+class MqttController
+{
+  friend class MqttStateIdle;
+  friend class MqttStateConnecting;
+  friend class MqttStateConnected;
+  friend class MqttStateError;
+
+  MqttStateIdle       m_StateIdle;
+  MqttStateConnecting m_StateConnecting;
+  MqttStateConnected  m_StateConnected;
+  MqttStateError      m_StateError;
+
+  MqttState *mp_CurrentState;
+
+  MqttSettings *mp_Settings;
+  MqttStateAction *mp_StateAction;
+
+public:
+  MqttController(MqttSettings *p_Settings = nullptr, MqttStateAction *p_StateAction = nullptr);
+  void setSettings(MqttSettings *p_Settings);
+  MqttSettings *getSettings(void);
+  void setStateAction(MqttStateAction *p_StateAction);
+  MqttStateAction *getStateAction(void);  
+
+  void setup(void);
+  void loop(void);
+  void begin(void);
+  void end(void);
+  
+  MqttState::EState getState(void);
+
+  int publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS = 0, const bool b_Retain = false);
+  static int pickupTopic(String *p_Topic, String *p_Message, int MqttMsgSize); 
+
+private:
+  void setState(MqttState::EState e_NewState);
+};
+
+
+#endif
+

@@ -44,6 +44,7 @@ void ViewFacade::setup(void)
   m_Shell.addCommandCallback("settings", &ViewShellCommands::cmdSettings);
   m_Shell.addCommandCallback("set", &ViewShellCommands::cmdSet);
   m_Shell.addCommandCallback("wifi", &ViewShellCommands::cmdWifi);
+  m_Shell.addCommandCallback("mqtt", &ViewShellCommands::cmdMqtt);
   m_Shell.addCommandCallback("debuglevel", &ViewShellCommands::cmdDebug);
 
   m_Shell.begin(); 
