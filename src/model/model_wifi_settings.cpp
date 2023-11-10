@@ -75,7 +75,7 @@ uint8_t WifiSettings::getNetworkCount(void)
 const char *WifiSettings::getNetworkSSID(const uint8_t u8_Index)
 {
   if((u8_Index>=MAX_WIFI_NETWORKS) || (u8_Index>=mu8_WifiNetworkCount))
-    return nullptr;
+    return "";
   return ma_Networks[u8_Index].ac_SSID;
 }
 
@@ -84,7 +84,7 @@ const char *WifiSettings::getNetworkSSID(const uint8_t u8_Index)
 const char *WifiSettings::getNetworkPassword(const uint8_t u8_Index)
 {
   if((u8_Index>=MAX_WIFI_NETWORKS) || (u8_Index>=mu8_WifiNetworkCount))
-    return nullptr;
+    return "";
   return ma_Networks[u8_Index].ac_Password;
 }
 

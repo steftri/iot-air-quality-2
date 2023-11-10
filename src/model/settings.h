@@ -9,6 +9,15 @@
 
 class Settings
 {
+public: 
+  typedef enum 
+  {
+    Ok = 0,
+    Error = -1
+  } ERc;
+
+
+private:
   WifiSettings m_WifiSettings;
 
 public:
@@ -16,8 +25,8 @@ public:
 
   void begin(void);
 
-  int16_t save(void);
-  int16_t load(void);
+  ERc save(void);
+  ERc load(void);
   void clear(void);
 
   WifiSettings *getWifiSettings(void);

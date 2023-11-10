@@ -5,20 +5,8 @@
 #include "LedIndicatorAdapter.h"
 
 
-
-
-#define WIFI_INDICATOR   13
-#define TCP_INDICATOR   12
-#define UDP_INDICATOR   14
-
-LedIndicatorAdapter myWifiIndicatorAdapter(WIFI_INDICATOR);
+LedIndicatorAdapter myWifiIndicatorAdapter(LED_BUILTIN);
 Indicator myWifiIndicator(&myWifiIndicatorAdapter);
-
-LedIndicatorAdapter myTcpIndicatorAdapter(TCP_INDICATOR);
-Indicator myTcpIndicator(&myTcpIndicatorAdapter);
-
-LedIndicatorAdapter myUdpIndicatorAdapter(UDP_INDICATOR);
-Indicator myUdpIndicator(&myUdpIndicatorAdapter);
 
 
 
@@ -76,7 +64,7 @@ void ControllerFacade::setup(void)
 {
   m_WifiController.setup();
 
-  if(0==m_Settings.load())
+  if(m_Settings.load()==Settings::Ok)
   {
     debug.println(Debug::Info, "Settings loaded");
     if(m_Settings.getWifiSettings()->getNetworkCount()>0)
@@ -107,7 +95,7 @@ ControllerFacade::ERc ControllerFacade::setDbgMinSevLevel(Debug::ESeverity e_Min
 
 ControllerFacade::ERc ControllerFacade::saveSettings(void)
 {
-  if(0!=m_Settings.save())
+  if(m_Settings.save()!=Settings::Ok)
   {
     Serial.println("Error! Settings not saved.");
     return Error;
