@@ -34,6 +34,7 @@ class MyMqttStateAction : public MqttStateAction
 };
 
 
+
 class ControllerFacade
 {
 public: 
@@ -82,6 +83,8 @@ public:
   void connectMqtt(void);
   void disconnectMqtt(void);
   void printMqttStatus(void);
+
+  static void onMqttTopicReceived(const char *pc_Topic, const char *pc_Content);  
 };
 
 

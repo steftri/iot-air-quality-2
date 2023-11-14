@@ -23,8 +23,6 @@ WiFiClient myMqttTcpClient;
 MqttClient myMqttClient(&myMqttTcpClient);  
 
 
-
-
 /*****************************************************/
 /*     implementation of behaviour in IDLE state     */
 /*****************************************************/
@@ -154,6 +152,8 @@ void MqttStateConnected::init(MqttController *p_Controller)
 
   debug.println(Debug::Info, "MQTT state: connected");    
 
+  myMqttClient.onMessage(onMessage);
+
   if(p_Controller->getStateAction())
     p_Controller->getStateAction()->connected();
 }
@@ -162,6 +162,15 @@ void MqttStateConnected::init(MqttController *p_Controller)
 void MqttStateConnected::loop(MqttController *p_Controller)
 {
   myMqttClient.poll();  // handling of keepalive messages
+
+  if(!myMqttClient.connected())
+  {
+    debug.println(Debug::Info, "MQTT connection lost");
+
+    if(p_Controller->getStateAction())
+      p_Controller->getStateAction()->disconnected();
+    p_Controller->setState(MqttState::Connecting);     
+  }  
 }
 
 
@@ -172,12 +181,31 @@ MqttState::EState MqttStateConnected::getState(void)
 }
 
 
+void MqttStateConnected::onMessage(int MsgSize)
+{
+  String Topic;
+  char ac_Message[MAX_MQTT_MESSAGE+1];
+  uint16_t i;
+
+  Topic = myMqttClient.messageTopic();
+
+  for(i=0; i<MsgSize && myMqttClient.available() && i<MAX_MQTT_MESSAGE; i++) 
+    ac_Message[i]=(char)myMqttClient.read();
+  ac_Message[i] = '\0';
+
+  if(myMqttClient.available())   // clean up if message was longer than our buffer
+    myMqttClient.flush();
+
+  debug.println(Debug::Info, "MQTT topic received");
+  MqttController::onTopicReceived(Topic.c_str(), ac_Message);
+
+  return;
+}
 
 
 
 
-
-
+MqttController::TTopicReceivedCallback *MqttController::mp_TopicReceivedCallback = nullptr;
 
 MqttController::MqttController(MqttSettings *p_Settings, MqttStateAction *p_StateAction)
   : mp_CurrentState{&m_StateIdle}
@@ -211,6 +239,13 @@ MqttStateAction *MqttController::getStateAction(void)
 {
   return mp_StateAction;
 }
+
+
+void MqttController::setTopicReceivedCallback(TTopicReceivedCallback *p_TopicReceivedCallback)
+{
+  mp_TopicReceivedCallback = p_TopicReceivedCallback;
+}
+
 
 
 
@@ -270,12 +305,12 @@ void MqttController::setState(MqttState::EState e_NewState)
 
 
 
-int MqttController::publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS, const bool b_Retain)
+MqttController::ERc MqttController::publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS, const bool b_Retain)
 {
   if(mp_CurrentState->getState()!=MqttState::Connected)
   {
     debug.println(Debug::Warning, "MQTT broker is not connected");
-    return -1;
+    return Error;
   }
 
   char ac_Dbg[128];
@@ -286,30 +321,21 @@ int MqttController::publish(const char *pc_Topic, const char *pc_Content, const 
   myMqttClient.print(pc_Content);
   myMqttClient.endMessage();
 
-  return 0;
+  return Ok;
 }
 
 
-
-int MqttController::pickupTopic(String *p_Topic, String *p_Message, int MqttMsgSize)
+MqttController::ERc MqttController::registerTopic(const char *pc_Topic)
 {
-  char ac_Message[MAX_MQTT_MESSAGE+1];
-  uint16_t i;
-
-  if(p_Topic)
-    *p_Topic = myMqttClient.messageTopic();
-
-  for(i=0; i<MqttMsgSize && myMqttClient.available() && i<MAX_MQTT_MESSAGE; i++) 
-    ac_Message[i]=(char)myMqttClient.read();
-  ac_Message[i] = '\0';
-
-  if(myMqttClient.available())   // clean up if message was longer than our buffer
-    myMqttClient.flush();
-
-  if(p_Message)
-    *p_Message = ac_Message;
-
-  debug.println(Debug::Info, "MQTT topic received");
-
-  return 0;
+  return (MQTT_SUCCESS==myMqttClient.subscribe(pc_Topic))?Ok:Error;
 }
+
+
+void MqttController::onTopicReceived(const char *pc_Topic, const char *pc_Content)
+{
+  debug.println(Debug::Info, "onTopicReceived() called");
+
+  if(mp_TopicReceivedCallback)
+    mp_TopicReceivedCallback(pc_Topic, pc_Content);  
+}
+

@@ -146,7 +146,7 @@ void WifiStateConnecting::loop(WifiController *p_Controller)
 
     char ac_DbgConnectMsg[80];
     snprintf(ac_DbgConnectMsg, 80, "Trying to connect to \"%s\"", p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex));
-    debug.println(Debug::Info, ac_DbgConnectMsg);
+    debug.println(Debug::Trace, ac_DbgConnectMsg);
     
     WiFi.begin(p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex), p_WifiSettings->getNetworkPassword(mu8_CurrentNetworkIndex));    
     mu32_NextConnectionAttempt = millis()+CONNECTION_RETRY_INTERVAL;

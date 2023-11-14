@@ -4,7 +4,7 @@
 
 #include "LedIndicatorAdapter.h"
 
-#define LED_WIFI   27    // LED_BUILTIN
+#define LED_WIFI    2    // LED_BUILTIN
 #define LED_MQTT   33
 
 
@@ -24,6 +24,7 @@ extern ControllerFacade myController;
 void MyWifiStateAction::idle(void) 
 {
   myWifiIndicator.clear();
+  myController.disconnectMqtt(); 
 }
 
 void MyWifiStateAction::connecting(void) 
@@ -34,16 +35,19 @@ void MyWifiStateAction::connecting(void)
 void MyWifiStateAction::connected(void) 
 {
   myWifiIndicator.set();
+  myController.connectMqtt();
 }
 
 void MyWifiStateAction::disconnected(void) 
 {
   myWifiIndicator.clear();
+  myController.disconnectMqtt();  
 }
 
 void MyWifiStateAction::error(void) 
 {
   myWifiIndicator.blink();
+  myController.disconnectMqtt(); 
 }  
 
 
@@ -77,6 +81,9 @@ void MyMqttStateAction::error(void)
 
 
 
+
+
+
 ControllerFacade::ControllerFacade(ViewFacade *p_ViewFacade)
  : mp_ViewFacade{p_ViewFacade}
 {
@@ -85,6 +92,7 @@ ControllerFacade::ControllerFacade(ViewFacade *p_ViewFacade)
 
   m_MqttController.setSettings(m_Settings.getMqttSettings());
   m_MqttController.setStateAction(&m_MqttStateAction);  
+  m_MqttController.setTopicReceivedCallback(&ControllerFacade::onMqttTopicReceived);
 }
 
 
@@ -267,8 +275,19 @@ void ControllerFacade::printMqttStatus(void)
   {
     case MqttState::Idle:       Serial.println("idle"); break;
     case MqttState::Connecting: Serial.println("connecting"); break;
-    case MqttState::Connected:  Serial.print("connected"); break;
+    case MqttState::Connected:  Serial.println("connected"); break;
     case MqttState::Error:      Serial.println("ERROR"); break;
     default: Serial.println("unknown"); break;
   }
 }
+
+void ControllerFacade::onMqttTopicReceived(const char *pc_Topic, const char *pc_Content)
+{
+  debug.println(Debug::Info, "ControllerFacade::onTopicReceived()");
+
+  Serial.print("MQTT Topic: ");
+  Serial.print(pc_Topic);
+  Serial.print(", Content: ");
+  Serial.print(pc_Content);
+}
+

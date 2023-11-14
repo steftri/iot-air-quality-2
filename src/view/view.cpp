@@ -10,6 +10,7 @@
 void ViewFacade::showPrompt(void)
 {
   Serial.print("> ");
+  Serial.flush();
   return;
 }
 

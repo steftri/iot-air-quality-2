@@ -43,6 +43,9 @@ public:
   void init(MqttController *p_Controller = nullptr);
   void loop(MqttController *p_Controller = nullptr);
   EState getState(void);
+
+private:
+  static void onMessage(int MsgSize);   
 };
 
 
@@ -90,6 +93,16 @@ class MqttController
   friend class MqttStateConnected;
   friend class MqttStateError;
 
+public: 
+  typedef enum 
+  {
+    Ok = 0,
+    Error = -1
+  } ERc;
+
+  typedef void (TTopicReceivedCallback)(const char *pc_Topic, const char *pc_Content);
+
+private:
   MqttStateIdle       m_StateIdle;
   MqttStateConnecting m_StateConnecting;
   MqttStateConnected  m_StateConnected;
@@ -100,12 +113,15 @@ class MqttController
   MqttSettings *mp_Settings;
   MqttStateAction *mp_StateAction;
 
+  static TTopicReceivedCallback *mp_TopicReceivedCallback;
+
 public:
   MqttController(MqttSettings *p_Settings = nullptr, MqttStateAction *p_StateAction = nullptr);
   void setSettings(MqttSettings *p_Settings);
   MqttSettings *getSettings(void);
   void setStateAction(MqttStateAction *p_StateAction);
   MqttStateAction *getStateAction(void);  
+  void setTopicReceivedCallback(TTopicReceivedCallback *p_TopicReceivedCallback);
 
   void setup(void);
   void loop(void);
@@ -114,8 +130,9 @@ public:
   
   MqttState::EState getState(void);
 
-  int publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS = 0, const bool b_Retain = false);
-  static int pickupTopic(String *p_Topic, String *p_Message, int MqttMsgSize); 
+  ERc publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS = 0, const bool b_Retain = false);
+  ERc registerTopic(const char *pc_Topic);
+  static void onTopicReceived(const char *pc_Topic, const char *pc_Content);
 
 private:
   void setState(MqttState::EState e_NewState);
