@@ -196,7 +196,7 @@ void MqttStateConnected::onMessage(int MsgSize)
   if(myMqttClient.available())   // clean up if message was longer than our buffer
     myMqttClient.flush();
 
-  debug.println(Debug::Info, "MQTT topic received");
+  debug.println(Debug::Trace, "MQTT topic received");
   MqttController::onTopicReceived(Topic.c_str(), ac_Message);
 
   return;
@@ -327,15 +327,16 @@ MqttController::ERc MqttController::publish(const char *pc_Topic, const char *pc
 
 MqttController::ERc MqttController::registerTopic(const char *pc_Topic)
 {
+  char ac_Dbg[64];
+  snprintf(ac_Dbg, sizeof(ac_Dbg), "Registering MQTT topic '%s'", pc_Topic);
+  debug.println(Debug::Info, ac_Dbg);
+
   return (MQTT_SUCCESS==myMqttClient.subscribe(pc_Topic))?Ok:Error;
 }
 
 
 void MqttController::onTopicReceived(const char *pc_Topic, const char *pc_Content)
 {
-  debug.println(Debug::Info, "onTopicReceived() called");
-
   if(mp_TopicReceivedCallback)
     mp_TopicReceivedCallback(pc_Topic, pc_Content);  
 }
-

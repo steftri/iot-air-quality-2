@@ -1,11 +1,14 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
 #include "controller.h"
 
 #include "LedIndicatorAdapter.h"
 
-#define LED_WIFI    2    // LED_BUILTIN
-#define LED_MQTT   33
+#define LED_WIFI   13    // LED_BUILTIN
+#define LED_MQTT   12
+
+#define MQTT_IOT_DEVICE_NAME "iotdevice"
 
 
 LedIndicatorAdapter myWifiIndicatorAdapter(LED_WIFI);
@@ -62,9 +65,26 @@ void MyMqttStateAction::connecting(void)
   myMqttIndicator.blink();
 }
 
+
+
+
 void MyMqttStateAction::connected(void) 
 {
   myMqttIndicator.set();
+
+  uint64_t u64_uid; 
+  StaticJsonDocument<32> jsonDoc;
+  char ac_SerializedContent[32]; 
+  char ac_Topic[48+1];
+
+  u64_uid = myController.getUid();
+
+  jsonDoc["uid"] = u64_uid;
+  serializeJson(jsonDoc, ac_SerializedContent, sizeof(ac_SerializedContent));
+  myController.publishMqttMessage(MQTT_IOT_DEVICE_NAME, ac_SerializedContent, 1, true);
+
+  snprintf(ac_Topic, sizeof(ac_Topic), MQTT_IOT_DEVICE_NAME "/%llu/command", u64_uid);
+  myController.registerMqttTopic(ac_Topic);
 }
 
 void MyMqttStateAction::disconnected(void) 
@@ -125,6 +145,13 @@ void ControllerFacade::loop(void)
 {
   m_WifiController.loop();
   m_MqttController.loop();
+}
+
+
+
+uint64_t ControllerFacade::getUid(void)
+{
+  return ESP.getEfuseMac();
 }
 
 
@@ -281,13 +308,26 @@ void ControllerFacade::printMqttStatus(void)
   }
 }
 
+
+ControllerFacade::ERc ControllerFacade::registerMqttTopic(const char *pc_Topic)
+{
+  return (MqttController::Ok==m_MqttController.registerTopic(pc_Topic)?Ok:Error);
+}
+
+
+ControllerFacade::ERc ControllerFacade::publishMqttMessage(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS, const bool b_Retain)
+{
+  return (MqttController::Ok==m_MqttController.publish(pc_Topic, pc_Content, u8_QoS, b_Retain)?Ok:Error);
+}
+
+
 void ControllerFacade::onMqttTopicReceived(const char *pc_Topic, const char *pc_Content)
 {
-  debug.println(Debug::Info, "ControllerFacade::onTopicReceived()");
+  debug.println(Debug::Trace, "ControllerFacade::onTopicReceived()");
 
   Serial.print("MQTT Topic: ");
   Serial.print(pc_Topic);
   Serial.print(", Content: ");
-  Serial.print(pc_Content);
+  Serial.println(pc_Content);
 }
 
