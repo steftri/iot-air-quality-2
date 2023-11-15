@@ -202,8 +202,8 @@ WifiState::EState WifiStateConnected::getState(void)
 /*****************************************************/
 
 WifiController::WifiController(WifiSettings *p_Settings, WifiStateAction *p_StateAction)
-  : mp_CurrentState{&m_StateIdle}
-  , mp_Settings{p_Settings}
+  : mp_Settings{p_Settings} 
+  , mp_CurrentState{&m_StateIdle}
   , mp_StateAction{p_StateAction}
   , mac_CurrentSSID{""}
 {

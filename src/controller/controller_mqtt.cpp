@@ -207,8 +207,8 @@ void MqttStateConnected::onMessage(int MsgSize)
 MqttController::TTopicReceivedCallback *MqttController::mp_TopicReceivedCallback = nullptr;
 
 MqttController::MqttController(MqttSettings *p_Settings, MqttStateAction *p_StateAction)
-  : mp_CurrentState{&m_StateIdle}
-  , mp_Settings{p_Settings}
+  : mp_Settings{p_Settings}
+  , mp_CurrentState{&m_StateIdle}
   , mp_StateAction{p_StateAction}  
 {
 }

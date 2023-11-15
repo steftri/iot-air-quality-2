@@ -26,6 +26,15 @@ public:
 };
 
 
+class MqttStateIdle : public MqttState
+{
+public:
+  void init(MqttController *p_Controller = nullptr);
+  void loop(MqttController *p_Controller = nullptr);
+  EState getState(void);
+};
+
+
 class MqttStateConnecting : public MqttState
 {
   uint32_t mu32_NextConnectionAttempt;
@@ -46,15 +55,6 @@ public:
 
 private:
   static void onMessage(int MsgSize);   
-};
-
-
-class MqttStateIdle : public MqttState
-{
-public:
-  void init(MqttController *p_Controller = nullptr);
-  void loop(MqttController *p_Controller = nullptr);
-  EState getState(void);
 };
 
 
@@ -103,14 +103,14 @@ public:
   typedef void (TTopicReceivedCallback)(const char *pc_Topic, const char *pc_Content);
 
 private:
+  MqttSettings *mp_Settings;
+
   MqttStateIdle       m_StateIdle;
   MqttStateConnecting m_StateConnecting;
   MqttStateConnected  m_StateConnected;
   MqttStateError      m_StateError;
 
   MqttState *mp_CurrentState;
-
-  MqttSettings *mp_Settings;
   MqttStateAction *mp_StateAction;
 
   static TTopicReceivedCallback *mp_TopicReceivedCallback;
@@ -125,13 +125,15 @@ public:
 
   void setup(void);
   void loop(void);
+
   void begin(void);
   void end(void);
-  
   MqttState::EState getState(void);
 
   ERc publish(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS = 0, const bool b_Retain = false);
   ERc registerTopic(const char *pc_Topic);
+
+protected:  
   static void onTopicReceived(const char *pc_Topic, const char *pc_Content);
 
 private:

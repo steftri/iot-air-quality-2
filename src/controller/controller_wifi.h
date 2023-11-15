@@ -20,6 +20,16 @@ public:
 };
 
 
+
+class WifiStateIdle : public WifiState
+{
+public:
+  void init(WifiController *p_Controller);
+  void loop(WifiController *p_Controller);
+  EState getState(void);
+};
+
+
 class WifiStateConnecting : public WifiState
 {
   uint8_t mu8_CurrentNetworkIndex;
@@ -33,15 +43,6 @@ public:
 
 
 class WifiStateConnected : public WifiState
-{
-public:
-  void init(WifiController *p_Controller);
-  void loop(WifiController *p_Controller);
-  EState getState(void);
-};
-
-
-class WifiStateIdle : public WifiState
 {
 public:
   void init(WifiController *p_Controller);
@@ -89,14 +90,14 @@ class WifiController
   friend class WifiStateConnected;
   friend class WifiStateError;
 
+  WifiSettings *mp_Settings;
+
   WifiStateIdle       m_StateIdle;
   WifiStateConnecting m_StateConnecting;
   WifiStateConnected  m_StateConnected;
   WifiStateError      m_StateError;
 
   WifiState *mp_CurrentState;
-
-  WifiSettings *mp_Settings;
   WifiStateAction *mp_StateAction;
 
   char mac_CurrentSSID[MAX_SSID_LENGTH+1];
@@ -110,9 +111,9 @@ public:
 
   void setup(void);
   void loop(void);
+
   void begin(void);  
   void end(void);
-
   WifiState::EState getState(void);
   const char *getCurrentSSID(void);
   const char *getLocalIp(void);
