@@ -11,13 +11,13 @@
 
 
 
-package "Model" as MODEL {
+folder "model" as MODEL {
   [WIFI settings]
   [MQTT settings]
   [settings]
 }
 
-package "Controller" as CONTROLLER {
+folder "controller" as CONTROLLER {
   [WIFI controller]
   [MQTT controller]
   [controllerFacade]
@@ -25,7 +25,7 @@ package "Controller" as CONTROLLER {
   [MQTT action]
 }
 
-package "View" as VIEW {
+folder "view" as VIEW {
   [Shell cmds]
   [viewFacade]
 }
@@ -33,31 +33,34 @@ package "View" as VIEW {
 
 main -up-> [controllerFacade]
 
+
+[controllerFacade] --> [settings]
+[controllerFacade] --> [viewFacade]
+
+
 [settings] -up-> [WIFI settings]
 [settings] -up-> [MQTT settings]
 
 [settings] -up-> [CRC]
 [settings] -up-> [Arduino/EspressIF framework]
 
+
 [controllerFacade] -up-> [WIFI controller]
 [controllerFacade] -up-> [MQTT controller]
 [controllerFacade] <-up-> [WIFI action]
 [controllerFacade] <-up-> [MQTT action]
 
+[WIFI controller] -up-> [Arduino/EspressIF framework]
 [WIFI action] -up-> [spin-timer]
-[MQTT action] -up-> [spin-timer]
-
-[viewFacade] -up-> [Shell cmds]
-
-[controllerFacade] --> [settings]
-[controllerFacade] --> [viewFacade]
-
 
 [MQTT controller] -up-> [ArduinoMqttClient]
-[MQTT controller] -up-> [ArduinoJSON]
+[MQTT controller] -up-> [Arduino/EspressIF framework]
+[MQTT action] -up-> [spin-timer]
+[MQTT action] -up-> [ArduinoJSON]
 
-[WIFI controller] -up-> [Arduino/EspressIF framework]
 
+[viewFacade] -up-> [Shell cmds]
 [viewFacade] -up-> [Shell]
+
 
 @enduml
