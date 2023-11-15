@@ -14,8 +14,7 @@
 
 
 #define CONNECTION_RETRY_INTERVAL 10000  // in ms; MQTT reconnect interval 10s
-#define MAX_CONNECTION_ATTEMPTS      10
-
+#define MAX_CONNECTION_ATTEMPTS       0  // 0 means unlimited retries
 
 
 
@@ -125,7 +124,7 @@ void MqttStateConnecting::loop(MqttController *p_Controller)
       snprintf(ac_DbgConnectMsg, 80, "Connection to %s failed - error code: %i", pc_BrokerAddr, myMqttClient.connectError());
       debug.println(Debug::Info, ac_DbgConnectMsg);
 
-      if(mu16_ConnectionAttempts>MAX_CONNECTION_ATTEMPTS)
+      if((MAX_CONNECTION_ATTEMPTS>0) && (mu16_ConnectionAttempts>MAX_CONNECTION_ATTEMPTS))
       {
         p_Controller->setState(MqttState::Error);
       }
