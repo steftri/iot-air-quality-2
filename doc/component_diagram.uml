@@ -1,13 +1,18 @@
 @startuml
 
+[debug]
+[ArduinoJSON]
+[spin-timer]
+[ArduinoMqttClient]
+[Arduino/EspressIF framework]
+[CRC]
+[Shell]
 
-  [Arduino/EspressIF framework]
-  [CRC]
-  [ArduinoMqttClient]
-  [ArduinoJSON]
-  [spin-timer]
-  [Shell]
-  [debug]
+
+[Shell] -[hidden]right- [debug]
+[debug] -[hidden]right- [ArduinoJSON]
+[Arduino/EspressIF framework] -[hidden]right- [CRC]
+
 
 
 
@@ -32,7 +37,6 @@ folder "view" as VIEW {
 
 
 main -up-> [controllerFacade]
-
 
 [controllerFacade] --> [settings]
 [controllerFacade] --> [viewFacade]
@@ -61,6 +65,9 @@ main -up-> [controllerFacade]
 
 [viewFacade] -up-> [Shell cmds]
 [viewFacade] -up-> [Shell]
+
+[Shell cmds] --> [controllerFacade]
+[WIFI settings] -[hidden]- [controllerFacade]
 
 
 @enduml
