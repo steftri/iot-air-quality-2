@@ -15,7 +15,7 @@ extern ControllerFacade myController;
 int ViewShellCommands::cmdHelp(int argc, char *argv[])
 {
   Serial.println("Commands:");
-  Serial.println("info, settings, set, wifi, debuglevel");
+  Serial.println("info, settings, set, wifi, mqtt, debuglevel");
   return 0;
 }
 

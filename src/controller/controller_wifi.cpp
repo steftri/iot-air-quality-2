@@ -140,10 +140,6 @@ void WifiStateConnecting::loop(WifiController *p_Controller)
       mu8_SameNetworkConnectRetries = 1;   
     }
 
-    //snprintf(ac_DbgConnectMsg, 80, "Network %i/%i:", mu8_CurrentNetworkIndex+1, p_WifiSettings->getNetworkCount());
-    //debug.println(Debug::Info, ac_DbgConnectMsg); 
-    //Serial.flush();
-
     char ac_DbgConnectMsg[80];
     snprintf(ac_DbgConnectMsg, 80, "Trying to connect to \"%s\"", p_WifiSettings->getNetworkSSID(mu8_CurrentNetworkIndex));
     debug.println(Debug::Trace, ac_DbgConnectMsg);
@@ -308,7 +304,8 @@ const char *WifiController::getCurrentSSID(void)
 }
 
 
-IPAddress WifiController::getLocalIp(void)
+const char *WifiController::getLocalIp(void)
 {
-  return WiFi.localIP();
+  static String localIp = WiFi.localIP().toString();
+  return localIp.c_str();
 }

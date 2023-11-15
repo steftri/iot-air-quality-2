@@ -115,7 +115,7 @@ public:
 
   WifiState::EState getState(void);
   const char *getCurrentSSID(void);
-  IPAddress getLocalIp(void);
+  const char *getLocalIp(void);
 
 private:
   void setState(WifiState::EState e_NewState);

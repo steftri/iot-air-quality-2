@@ -38,10 +38,7 @@ void setup()
   Serial.println();
   Serial.println(PROJECT_NAME);
   Serial.println(__DATE__ ", " __TIME__);
-  Serial.print("UID: ");
-  Serial.println(ESP.getEfuseMac());
-  Serial.println();
-  
+
   myController.setup();
   myView.setup();
 }

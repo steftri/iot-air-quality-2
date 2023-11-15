@@ -77,7 +77,7 @@ public:
   void connectWifi(const char *pc_SSID, const char *pc_Passphrase);
   void connectWifi(void);
   void disconnectWifi(void);
-  String getCurrentIP(void);
+  const char *getCurrentIP(void);
   void printWifiStatus(void);
 
   void setMqttSettings(const char *pc_BrokerAddr); 

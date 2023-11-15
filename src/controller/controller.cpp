@@ -5,8 +5,8 @@
 
 #include "LedIndicatorAdapter.h"
 
-#define LED_WIFI   13    // LED_BUILTIN
-#define LED_MQTT   12
+#define LED_WIFI    2    // LED_BUILTIN on ESP8266 
+#define LED_MQTT   16    
 
 #define MQTT_IOT_DEVICE_NAME "iotdevice"
 
@@ -70,21 +70,24 @@ void MyMqttStateAction::connecting(void)
 
 void MyMqttStateAction::connected(void) 
 {
-  myMqttIndicator.set();
-
   uint64_t u64_uid; 
+  char ac_Topic[48+1];
+
   StaticJsonDocument<32> jsonDoc;
   char ac_SerializedContent[32]; 
-  char ac_Topic[48+1];
 
   u64_uid = myController.getUid();
 
+  // register topic
+  snprintf(ac_Topic, sizeof(ac_Topic), MQTT_IOT_DEVICE_NAME "/%llu/command", u64_uid);
+  myController.registerMqttTopic(ac_Topic);
+   
+  // publish own UID
   jsonDoc["uid"] = u64_uid;
   serializeJson(jsonDoc, ac_SerializedContent, sizeof(ac_SerializedContent));
   myController.publishMqttMessage(MQTT_IOT_DEVICE_NAME, ac_SerializedContent, 1, true);
 
-  snprintf(ac_Topic, sizeof(ac_Topic), MQTT_IOT_DEVICE_NAME "/%llu/command", u64_uid);
-  myController.registerMqttTopic(ac_Topic);
+  myMqttIndicator.set();
 }
 
 void MyMqttStateAction::disconnected(void) 
@@ -151,7 +154,11 @@ void ControllerFacade::loop(void)
 
 uint64_t ControllerFacade::getUid(void)
 {
+#ifdef ESP8266
+  return ESP.getChipId();
+#else
   return ESP.getEfuseMac();
+#endif  
 }
 
 
@@ -231,9 +238,9 @@ void ControllerFacade::disconnectWifi(void)
 }
 
 
-String ControllerFacade::getCurrentIP(void)
+const char *ControllerFacade::getCurrentIP(void)
 {
-  return m_WifiController.getLocalIp().toString();
+  return m_WifiController.getLocalIp();
 }
 
 
