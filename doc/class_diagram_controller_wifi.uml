@@ -51,7 +51,7 @@ class WifiStateError
   + init(parent : WifiController*)
   + loop(parent : WifiController*)
   + getState() : EState
-}
+} 
 
 
 interface WifiStateAction
@@ -99,6 +99,8 @@ class WifiController
   ....
   - CurrentState : WifiState*
   - StateAction : WifiStateAction* 
+  ....
+  - CurrentSSID : char*
   ----
   + WifiController(p_Settings : WifiSettings*, p_StateAction : WifiStateAction*)
   + setSettings(p_Settings : WifiSettings*)
@@ -112,7 +114,8 @@ class WifiController
   + begin()
   + end()
   + getState() : EState
-  + getLocalIp() : IPAddress
+  + getCurrentSSID() : char*
+  + getLocalIp() : char*
   ....
   - setState(e_NewState : EState)
   - setCurrentSSID(SSID : char*)
@@ -138,5 +141,7 @@ WifiController o-up- WifiState
 WifiSettings *-right- WifiNetwork
 WifiSettings -left-o WifiController
 WifiStateAction -right-o WifiController
+
+note right of WifiState: design pattern "State"
 
 @enduml

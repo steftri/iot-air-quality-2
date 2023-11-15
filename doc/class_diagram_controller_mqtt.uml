@@ -1,0 +1,147 @@
+@startuml
+
+
+enum EState
+{
+  Idle
+  Connecting
+  Connected
+  Error
+} 
+
+enum ERc
+{
+  Ok
+  Error
+} 
+
+
+interface MqttState
+{
+  # {abstract} init(parent : MqttController*)
+  # {abstract} loop(parent : MqttController*)
+  # {abstract} getState() : EState
+}
+
+
+class MqttStateIdle
+{
+  + init(parent : MqttController*)
+  + loop(parent : MqttController*)
+  + getState() : EState
+}
+
+
+class MqttStateConnecting
+{
+  - NextConnectionAttempt : uint32_t
+  - ConnectionAttempts : uint16_t
+  ----
+  + init(parent : MqttController*)
+  + loop(parent : MqttController*)
+  + getState() : EState
+}
+
+
+class MqttStateConnected
+{
+  + init(parent : MqttController*)
+  + loop(parent : MqttController*)
+  + getState() : EState
+  ....
+  - onMessage()
+}
+
+
+class MqttStateError
+{
+  + init(parent : MqttController*)
+  + loop(parent : MqttController*)
+  + getState() : EState
+} 
+
+
+interface MqttStateAction
+{
+  # {abstract} idle()
+  # {abstract} connecting()
+  # {abstract} connected()
+  # {abstract} disconnected()
+  # {abstract} error()
+}
+
+
+
+
+class MqttSettings
+{
+  # BrokerAddr : char[]
+  # BrokerPort : uint16_t
+  ----
+  + init()
+  + setBroker(Addr : char*, Port : uint16_t)
+  + getBrokerAddr() : char*
+  + getBrokerPort() : uint16_t
+  ....
+  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
+  + unserialize(Buffer : uint8_t *, Size : uint16_t)
+}
+
+
+class MqttController
+{
+  - Settings : MqttSettings* 
+  ....
+  - StateIdle : MqttStateIdle
+  - StateConnecting : MqttStateConnecting
+  - StateConnected : MqttStateConnected
+  - StateError : MqttStateError
+  ....
+  - CurrentState : MqttState*
+  - StateAction : MqttStateAction* 
+  ....
+  - TopicReceivedCallback : void (*)(Topic : char*, Content : char*)
+  ----
+  + MqttController(p_Settings : MqttSettings*, p_StateAction : MqttStateAction*)
+  + setSettings(p_Settings : MqttSettings*)
+  + getSettings() : MqttSettings*
+  + setStateAction(p_StateAction : MqttStateAction*)
+  + getStateAction() : MqttStateAction*
+  + setTopicReceivedCallback(Callback : void (*)(Topic : char*, Content : char*))
+  ....
+  + setup()
+  + loop()
+  ....
+  + begin()
+  + end()
+  + getState() : EState
+  + publish(Topic : char*, Content : char*, QoS : uint8_t, Retain : bool) : ERc
+  + registerTopic(Topic : char*) : ERc
+  ....
+  # onTopicReceived(Topic : char*, Content : char*)
+  - setState(e_NewState : EState)
+}
+
+
+MqttStateIdle <-right[hidden]- MqttStateConnecting
+MqttStateConnecting <-right[hidden]- MqttStateConnected
+MqttStateConnected <-right[hidden]- MqttStateError
+
+
+MqttStateIdle .up.|> MqttState
+MqttStateConnecting .up.|> MqttState
+MqttStateConnected .up.|> MqttState
+MqttStateError .up.|> MqttState
+
+MqttController *-up- MqttStateIdle
+MqttController *-up- MqttStateConnecting 
+MqttController *-up- MqttStateConnected
+MqttController *-up- MqttStateError
+MqttController o-up- MqttState
+
+MqttSettings -left-o MqttController
+MqttStateAction -right-o MqttController
+
+note right of MqttState: design pattern "State"
+
+@enduml

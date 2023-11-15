@@ -1,0 +1,63 @@
+@startuml
+
+
+  [Arduino/EspressIF framework]
+  [CRC]
+  [ArduinoMqttClient]
+  [ArduinoJSON]
+  [spin-timer]
+  [Shell]
+  [debug]
+
+
+
+package "Model" as MODEL {
+  [WIFI settings]
+  [MQTT settings]
+  [settings]
+}
+
+package "Controller" as CONTROLLER {
+  [WIFI controller]
+  [MQTT controller]
+  [controllerFacade]
+  [WIFI action]
+  [MQTT action]
+}
+
+package "View" as VIEW {
+  [Shell cmds]
+  [viewFacade]
+}
+
+
+main -up-> [controllerFacade]
+
+[settings] -up-> [WIFI settings]
+[settings] -up-> [MQTT settings]
+
+[settings] -up-> [CRC]
+[settings] -up-> [Arduino/EspressIF framework]
+
+[controllerFacade] -up-> [WIFI controller]
+[controllerFacade] -up-> [MQTT controller]
+[controllerFacade] <-up-> [WIFI action]
+[controllerFacade] <-up-> [MQTT action]
+
+[WIFI action] -up-> [spin-timer]
+[MQTT action] -up-> [spin-timer]
+
+[viewFacade] -up-> [Shell cmds]
+
+[controllerFacade] --> [settings]
+[controllerFacade] --> [viewFacade]
+
+
+[MQTT controller] -up-> [ArduinoMqttClient]
+[MQTT controller] -up-> [ArduinoJSON]
+
+[WIFI controller] -up-> [Arduino/EspressIF framework]
+
+[viewFacade] -up-> [Shell]
+
+@enduml

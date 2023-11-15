@@ -1,0 +1,13 @@
+@startuml
+
+[*] -right-> Idle : setup()
+
+Idle -right-> Connecting : begin()
+
+Connecting -right-> Connected : MQTT connection established 
+Connecting --> Idle : end()
+
+Connected --> Connecting : MQTT connection lost
+Connected -left-> Idle : end()
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+
+
+[*] -right-> Idle : setup()
+
+Idle -right-> Connecting : begin()
+
+Connecting -right-> Connected : WIFI connection established 
+Connecting --> Idle : end()
+
+Connected --> Connecting : WIFI connection lost
+Connected -left-> Idle : end()
+
+@enduml
