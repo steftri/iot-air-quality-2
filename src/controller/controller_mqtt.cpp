@@ -90,7 +90,7 @@ void MqttStateConnecting::init(MqttController *p_Controller)
 
   debug.println(Debug::Info, "MQTT state: connecting");    
 
-  if(p_Controller && p_Controller->getStateAction())
+  if(p_Controller->getStateAction())
     p_Controller->getStateAction()->connecting();
 
   mu32_NextConnectionAttempt = millis();

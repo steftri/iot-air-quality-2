@@ -29,9 +29,9 @@ public:
 class MqttStateIdle : public MqttState
 {
 public:
-  void init(MqttController *p_Controller = nullptr);
-  void loop(MqttController *p_Controller = nullptr);
-  EState getState(void);
+  void init(MqttController *p_Controller = nullptr) override;
+  void loop(MqttController *p_Controller = nullptr) override;
+  EState getState(void) override;
 };
 
 
@@ -40,18 +40,18 @@ class MqttStateConnecting : public MqttState
   uint32_t mu32_NextConnectionAttempt;
   uint16_t mu16_ConnectionAttempts;
 public:
-  void init(MqttController *p_Controller = nullptr);
-  void loop(MqttController *p_Controller = nullptr);
-  EState getState(void);
+  void init(MqttController *p_Controller = nullptr) override;
+  void loop(MqttController *p_Controller = nullptr) override;
+  EState getState(void) override;
 };
 
 
 class MqttStateConnected : public MqttState
 {
 public:
-  void init(MqttController *p_Controller = nullptr);
-  void loop(MqttController *p_Controller = nullptr);
-  EState getState(void);
+  void init(MqttController *p_Controller = nullptr) override;
+  void loop(MqttController *p_Controller = nullptr) override;
+  EState getState(void) override;
 
 private:
   static void onMessage(int MsgSize);   
@@ -61,9 +61,9 @@ private:
 class MqttStateError : public MqttState
 {
 public:
-  void init(MqttController *p_Controller = nullptr);
-  void loop(MqttController *p_Controller = nullptr);
-  EState getState(void);
+  void init(MqttController *p_Controller = nullptr) override;
+  void loop(MqttController *p_Controller = nullptr) override;
+  EState getState(void) override;
 };
 
 
@@ -116,7 +116,7 @@ private:
   static TTopicReceivedCallback *mp_TopicReceivedCallback;
 
 public:
-  MqttController(MqttSettings *p_Settings = nullptr, MqttStateAction *p_StateAction = nullptr);
+  explicit MqttController(MqttSettings *p_Settings = nullptr, MqttStateAction *p_StateAction = nullptr);
   void setSettings(MqttSettings *p_Settings);
   MqttSettings *getSettings(void);
   void setStateAction(MqttStateAction *p_StateAction);

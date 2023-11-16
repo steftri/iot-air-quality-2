@@ -57,7 +57,7 @@ private:
   MqttController       m_MqttController; 
 
 public:
-  ControllerFacade(ViewFacade *p_ViewFacade);
+  explicit ControllerFacade(ViewFacade *p_ViewFacade);
 
   ViewFacade *getViewFacade(void);
 

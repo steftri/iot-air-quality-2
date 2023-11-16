@@ -12,7 +12,7 @@ private:
   ESeverity me_MinSeverityLevel;
 
 public:
-  Debug(ESeverity e_MinSeverityLevel = Info);
+  explicit Debug(ESeverity e_MinSeverityLevel = Info);
 
   void setMinSeverityLevel(ESeverity e_MinSeverityLevel);
 

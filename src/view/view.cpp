@@ -55,11 +55,9 @@ void ViewFacade::setup(void)
 
 void ViewFacade::loop(void)
 {
-  char c_Char;
-
   if(Serial.available())
   {
-    c_Char = Serial.read();
+    char c_Char = Serial.read();
     if(c_Char=='\r')
       Serial.println();
     else

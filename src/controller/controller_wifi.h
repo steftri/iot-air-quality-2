@@ -24,9 +24,9 @@ public:
 class WifiStateIdle : public WifiState
 {
 public:
-  void init(WifiController *p_Controller);
-  void loop(WifiController *p_Controller);
-  EState getState(void);
+  void init(WifiController *p_Controller) override;
+  void loop(WifiController *p_Controller) override;
+  EState getState(void) override;
 };
 
 
@@ -36,27 +36,27 @@ class WifiStateConnecting : public WifiState
   uint8_t mu8_SameNetworkConnectRetries;
   uint32_t mu32_NextConnectionAttempt;
 public:
-  void init(WifiController *p_Controller);
-  void loop(WifiController *p_Controller);
-  EState getState(void);
+  void init(WifiController *p_Controller) override;
+  void loop(WifiController *p_Controller) override;
+  EState getState(void) override;
 };
 
 
 class WifiStateConnected : public WifiState
 {
 public:
-  void init(WifiController *p_Controller);
-  void loop(WifiController *p_Controller);
-  EState getState(void);
+  void init(WifiController *p_Controller) override;
+  void loop(WifiController *p_Controller) override;
+  EState getState(void) override;
 };
 
 
 class WifiStateError : public WifiState
 {
 public:
-  void init(WifiController *p_Controller);
-  void loop(WifiController *p_Controller);
-  EState getState(void);
+  void init(WifiController *p_Controller) override;
+  void loop(WifiController *p_Controller) override;
+  EState getState(void) override;
 };
 
 
@@ -103,7 +103,7 @@ class WifiController
   char mac_CurrentSSID[MAX_SSID_LENGTH+1];
 
 public:
-  WifiController(WifiSettings *p_Settings = nullptr, WifiStateAction *p_StateAction = nullptr);
+  explicit WifiController(WifiSettings *p_Settings = nullptr, WifiStateAction *p_StateAction = nullptr);
   void setSettings(WifiSettings *p_Settings);
   WifiSettings *getSettings(void);
   void setStateAction(WifiStateAction *p_StateAction);

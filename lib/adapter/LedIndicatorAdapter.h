@@ -18,9 +18,9 @@ class LedIndicatorAdapter: public AIndicatorAdapter
   uint16_t mu16_LedPin;
 
 public:
-  LedIndicatorAdapter(const uint16_t u16_LedPin);
+  explicit LedIndicatorAdapter(const uint16_t u16_LedPin);
   virtual ~LedIndicatorAdapter();
-  void notifyStatusChange(bool status);
+  void notifyStatusChange(bool status) override;
 
 private:
   void setLed(bool isOn);

@@ -79,7 +79,7 @@ public:
   };
 
 public:
-  Indicator(AIndicatorAdapter* adapter = nullptr, unsigned long pulseTimeMillis = cDefaultPulseTimeMillis);
+  explicit Indicator(AIndicatorAdapter* adapter = nullptr, unsigned long pulseTimeMillis = cDefaultPulseTimeMillis);
   virtual ~Indicator();
 
   void assignAdapter(AIndicatorAdapter* adapter);
