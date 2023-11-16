@@ -1,121 +1,29 @@
 #include <Arduino.h>
-#include <ArduinoJson.h>
 
 #include "controller.h"
+#include "controller_hw.h"
+#include "controller_wifi_action.h"
+#include "controller_mqtt_action.h"
 
-#include "LedIndicatorAdapter.h"
-
-#define LED_WIFI    2    // LED_BUILTIN on ESP8266 
-#define LED_MQTT   16    
-
-#define MQTT_IOT_DEVICE_NAME "iotdevice"
+#include "debug.h"
 
 
-LedIndicatorAdapter myWifiIndicatorAdapter(LED_WIFI);
-Indicator myWifiIndicator(&myWifiIndicatorAdapter);
-
-LedIndicatorAdapter myMqttIndicatorAdapter(LED_MQTT);
-Indicator myMqttIndicator(&myMqttIndicatorAdapter);
-
-
-extern ControllerFacade myController;
-
-
-
-
-
-void MyWifiStateAction::idle(void) 
-{
-  myWifiIndicator.clear();
-  myController.disconnectMqtt(); 
-}
-
-void MyWifiStateAction::connecting(void) 
-{
-  myWifiIndicator.blink();
-}
-
-void MyWifiStateAction::connected(void) 
-{
-  myWifiIndicator.set();
-  myController.connectMqtt();
-}
-
-void MyWifiStateAction::disconnected(void) 
-{
-  myWifiIndicator.clear();
-  myController.disconnectMqtt();  
-}
-
-void MyWifiStateAction::error(void) 
-{
-  myWifiIndicator.blink();
-  myController.disconnectMqtt(); 
-}  
-
-
-
-void MyMqttStateAction::idle(void) 
-{
-  myMqttIndicator.clear();
-}
-
-void MyMqttStateAction::connecting(void) 
-{
-  myMqttIndicator.blink();
-}
-
-
-
-
-void MyMqttStateAction::connected(void) 
-{
-  uint64_t u64_uid; 
-  char ac_Topic[48+1];
-
-  StaticJsonDocument<32> jsonDoc;
-  char ac_SerializedContent[32]; 
-
-  u64_uid = myController.getUid();
-
-  // register topic
-  snprintf(ac_Topic, sizeof(ac_Topic), MQTT_IOT_DEVICE_NAME "/%llu/command", u64_uid);
-  myController.registerMqttTopic(ac_Topic);
-   
-  // publish own UID
-  jsonDoc["uid"] = u64_uid;
-  serializeJson(jsonDoc, ac_SerializedContent, sizeof(ac_SerializedContent));
-  myController.publishMqttMessage(MQTT_IOT_DEVICE_NAME, ac_SerializedContent, 1, true);
-
-  myMqttIndicator.set();
-}
-
-void MyMqttStateAction::disconnected(void) 
-{
-  myMqttIndicator.clear();
-}
-
-void MyMqttStateAction::error(void) 
-{
-  myMqttIndicator.blink();
-}  
-
-
-
-
-
-
+#define VALUE_PUBLISH_INTERVAL_MS  5000  // every 5 seconds
 
 
 ControllerFacade::ControllerFacade(ViewFacade *p_ViewFacade)
  : mp_ViewFacade{p_ViewFacade}
+ , mu32_NextValueScanCycle{0}
 {
   m_WifiController.setSettings(m_Settings.getWifiSettings());
-  m_WifiController.setStateAction(&m_WifiStateAction);
+  m_WifiController.setAction(&m_WifiAction);
 
   m_MqttController.setSettings(m_Settings.getMqttSettings());
-  m_MqttController.setStateAction(&m_MqttStateAction);  
-  m_MqttController.setTopicReceivedCallback(&ControllerFacade::onMqttTopicReceived);
+  m_MqttController.setAction(&m_MqttAction);  
+
+  m_MqttController.setTopicReceivedCallback(&ViewFacade::onMqttTopicReceived);  // if the MQTT is not seen as an user interface, 
+                                                                                // the callback function could also be located 
+                                                                                // in the ControllerFacade class 
 }
 
 
@@ -127,6 +35,7 @@ ViewFacade *ControllerFacade::getViewFacade(void)
 
 void ControllerFacade::setup(void)
 {
+  m_HwController.setup();
   m_WifiController.setup();
   m_MqttController.setup();
 
@@ -140,26 +49,28 @@ void ControllerFacade::setup(void)
   {
     debug.println(Debug::Warning, "No valid settings found");      
   }
+  mu32_NextValueScanCycle = millis();
 }
 
 
 
 void ControllerFacade::loop(void)
 {
+  m_HwController.loop();
   m_WifiController.loop();
   m_MqttController.loop();
+
+  // trigger for publishing messurement data - if this gets more 
+  // complicated, it should be moved to an own controller
+  if(mu32_NextValueScanCycle<=millis())
+  {
+    float f32_Value = m_HwController.readAnalogValue();
+    mu32_NextValueScanCycle+=VALUE_PUBLISH_INTERVAL_MS;  // wraparound error after 49.7 days 
+    m_MqttAction.publishMessurementData(f32_Value);
+  }
 }
 
 
-
-uint64_t ControllerFacade::getUid(void)
-{
-#ifdef ESP8266
-  return ESP.getChipId();
-#else
-  return ESP.getEfuseMac();
-#endif  
-}
 
 
 
@@ -263,16 +174,6 @@ void ControllerFacade::printWifiStatus(void)
     Serial.print("IP: ");
     Serial.println(m_WifiController.getLocalIp());
   }
-  else
-  { /*
-    Serial.println("Networks:");
-    auto n=WiFi.scanNetworks();
-    for (int i = 0; i < n; i++)
-    {
-      Serial.println(WiFi.SSID(i));
-    }
-    */
-  }
 }
 
 
@@ -328,13 +229,22 @@ ControllerFacade::ERc ControllerFacade::publishMqttMessage(const char *pc_Topic,
 }
 
 
-void ControllerFacade::onMqttTopicReceived(const char *pc_Topic, const char *pc_Content)
-{
-  debug.println(Debug::Trace, "ControllerFacade::onTopicReceived()");
 
-  Serial.print("MQTT Topic: ");
-  Serial.print(pc_Topic);
-  Serial.print(", Content: ");
-  Serial.println(pc_Content);
+uint64_t ControllerFacade::getUid(void)
+{
+  return m_HwController.getUid();
 }
 
+
+void ControllerFacade::reset(void)
+{
+  Serial.println("resetting device...");
+  Serial.flush();
+  m_HwController.reset();
+}
+
+
+void ControllerFacade::setLed(const uint8_t u8_Led, bool b_On)
+{
+  m_HwController.setLed(u8_Led, b_On);
+}

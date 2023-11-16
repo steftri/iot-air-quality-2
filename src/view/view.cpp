@@ -4,6 +4,9 @@
 
 #include "view.h"
 #include "view_shell_cmds.h"
+#include "view_mqtt_cmds.h"
+
+#include "debug.h"
 
 
 
@@ -67,3 +70,15 @@ void ViewFacade::loop(void)
   }  
 }
 
+
+void ViewFacade::onMqttTopicReceived(const char *pc_Topic, const char *pc_Content)
+{
+  debug.println(Debug::Trace, "ViewFacade::onTopicReceived()");
+
+  Serial.print("MQTT Topic: ");
+  Serial.print(pc_Topic);
+  Serial.print(", Content: ");
+  Serial.println(pc_Content);
+
+  ViewMqttCommands::parse(pc_Topic, pc_Content);
+}

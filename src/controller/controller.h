@@ -2,36 +2,19 @@
 #define _CONTROLLER_H_
 
 
-
-#include "debug.h"
-
 #include "model/settings.h"
 
+#include "controller/controller_hw.h"
+
 #include "controller/controller_wifi.h"
+#include "controller/controller_wifi_action.h"
+
 #include "controller/controller_mqtt.h"
+#include "controller/controller_mqtt_action.h"
 
 #include "view/view.h"
 
-
-
-class MyWifiStateAction : public WifiStateAction
-{
-  void idle(void) override;
-  void connecting(void) override;
-  void connected(void) override;
-  void disconnected(void) override;
-  void error(void) override;
-};
-
-
-class MyMqttStateAction : public MqttStateAction
-{
-  void idle(void) override;
-  void connecting(void) override;
-  void connected(void) override;
-  void disconnected(void) override;
-  void error(void) override;
-};
+#include "debug.h"
 
 
 
@@ -50,11 +33,15 @@ private:
 
   Settings m_Settings;
 
-  MyWifiStateAction    m_WifiStateAction;
-  WifiController       m_WifiController; 
+  HwController    m_HwController;
 
-  MyMqttStateAction    m_MqttStateAction;
-  MqttController       m_MqttController; 
+  MyWifiAction    m_WifiAction;
+  WifiController  m_WifiController; 
+
+  MyMqttAction    m_MqttAction;
+  MqttController  m_MqttController; 
+
+  uint32_t mu32_NextValueScanCycle;
 
 public:
   explicit ControllerFacade(ViewFacade *p_ViewFacade);
@@ -63,8 +50,6 @@ public:
 
   void setup(void);
   void loop(void);
-
-  uint64_t getUid(void);
 
   ERc setDbgMinSevLevel(Debug::ESeverity e_MinSevLevel);
 
@@ -87,8 +72,10 @@ public:
   void printMqttStatus(void);  
   ERc registerMqttTopic(const char *pc_Topic);
   ERc publishMqttMessage(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS = 0, const bool b_Retain = false);
-  static void onMqttTopicReceived(const char *pc_Topic, const char *pc_Content);  
 
+  uint64_t getUid(void);
+  void reset(void);
+  void setLed(const uint8_t u8_Led, bool b_On);
 };
 
 

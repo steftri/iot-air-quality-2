@@ -69,7 +69,7 @@ public:
 
 
 
-class MqttStateAction
+class MqttAction
 {
   friend class MqttStateIdle;
   friend class MqttStateConnecting;
@@ -111,16 +111,16 @@ private:
   MqttStateError      m_StateError;
 
   MqttState *mp_CurrentState;
-  MqttStateAction *mp_StateAction;
+  MqttAction *mp_Action;
 
   static TTopicReceivedCallback *mp_TopicReceivedCallback;
 
 public:
-  explicit MqttController(MqttSettings *p_Settings = nullptr, MqttStateAction *p_StateAction = nullptr);
+  explicit MqttController(MqttSettings *p_Settings = nullptr, MqttAction *p_Action = nullptr);
   void setSettings(MqttSettings *p_Settings);
   MqttSettings *getSettings(void);
-  void setStateAction(MqttStateAction *p_StateAction);
-  MqttStateAction *getStateAction(void);  
+  void setAction(MqttAction *p_Action);
+  MqttAction *getAction(void);  
   void setTopicReceivedCallback(TTopicReceivedCallback *p_TopicReceivedCallback);
 
   void setup(void);

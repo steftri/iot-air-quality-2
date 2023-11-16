@@ -17,6 +17,8 @@ private:
 public:
   void setup(void);
   void loop(void);
+
+  static void onMqttTopicReceived(const char *pc_Topic, const char *pc_Content);  
 };
 
 

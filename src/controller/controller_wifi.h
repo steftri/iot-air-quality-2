@@ -62,7 +62,7 @@ public:
 
 
 
-class WifiStateAction
+class WifiAction
 {
   friend class WifiStateIdle;
   friend class WifiStateConnecting;
@@ -98,16 +98,16 @@ class WifiController
   WifiStateError      m_StateError;
 
   WifiState *mp_CurrentState;
-  WifiStateAction *mp_StateAction;
+  WifiAction *mp_Action;
 
   char mac_CurrentSSID[MAX_SSID_LENGTH+1];
 
 public:
-  explicit WifiController(WifiSettings *p_Settings = nullptr, WifiStateAction *p_StateAction = nullptr);
+  explicit WifiController(WifiSettings *p_Settings = nullptr, WifiAction *p_Action = nullptr);
   void setSettings(WifiSettings *p_Settings);
   WifiSettings *getSettings(void);
-  void setStateAction(WifiStateAction *p_StateAction);
-  WifiStateAction *getStateAction(void);
+  void setAction(WifiAction *p_Action);
+  WifiAction *getAction(void);
 
   void setup(void);
   void loop(void);

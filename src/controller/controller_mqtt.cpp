@@ -30,8 +30,8 @@ void MqttStateIdle::init(MqttController *p_Controller)
 {
   debug.println(Debug::Info, "MQTT state: idle");    
 
-  if(p_Controller && p_Controller->getStateAction())
-    p_Controller->getStateAction()->idle();
+  if(p_Controller && p_Controller->getAction())
+    p_Controller->getAction()->idle();
 }
 
 
@@ -55,8 +55,8 @@ void MqttStateError::init(MqttController *p_Controller)
 {
   debug.println(Debug::Info, "MQTT state: error");    
 
-  if(p_Controller && p_Controller->getStateAction())
-    p_Controller->getStateAction()->error();
+  if(p_Controller && p_Controller->getAction())
+    p_Controller->getAction()->error();
 }
 
 
@@ -90,8 +90,8 @@ void MqttStateConnecting::init(MqttController *p_Controller)
 
   debug.println(Debug::Info, "MQTT state: connecting");    
 
-  if(p_Controller->getStateAction())
-    p_Controller->getStateAction()->connecting();
+  if(p_Controller->getAction())
+    p_Controller->getAction()->connecting();
 
   mu32_NextConnectionAttempt = millis();
   mu16_ConnectionAttempts = 0;
@@ -153,8 +153,8 @@ void MqttStateConnected::init(MqttController *p_Controller)
 
   myMqttClient.onMessage(onMessage);
 
-  if(p_Controller->getStateAction())
-    p_Controller->getStateAction()->connected();
+  if(p_Controller->getAction())
+    p_Controller->getAction()->connected();
 }
 
 
@@ -166,8 +166,8 @@ void MqttStateConnected::loop(MqttController *p_Controller)
   {
     debug.println(Debug::Info, "MQTT connection lost");
 
-    if(p_Controller->getStateAction())
-      p_Controller->getStateAction()->disconnected();
+    if(p_Controller->getAction())
+      p_Controller->getAction()->disconnected();
     p_Controller->setState(MqttState::Connecting);     
   }  
 }
@@ -206,10 +206,10 @@ void MqttStateConnected::onMessage(int MsgSize)
 
 MqttController::TTopicReceivedCallback *MqttController::mp_TopicReceivedCallback = nullptr;
 
-MqttController::MqttController(MqttSettings *p_Settings, MqttStateAction *p_StateAction)
+MqttController::MqttController(MqttSettings *p_Settings, MqttAction *p_Action)
   : mp_Settings{p_Settings}
   , mp_CurrentState{&m_StateIdle}
-  , mp_StateAction{p_StateAction}  
+  , mp_Action{p_Action}  
 {
 }
 
@@ -227,16 +227,16 @@ MqttSettings *MqttController::getSettings(void)
 
 
 
-void MqttController::setStateAction(MqttStateAction *p_StateAction)
+void MqttController::setAction(MqttAction *p_Action)
 {
-  mp_StateAction = p_StateAction;
+  mp_Action = p_Action;
 }
 
 
 
-MqttStateAction *MqttController::getStateAction(void)
+MqttAction *MqttController::getAction(void)
 {
-  return mp_StateAction;
+  return mp_Action;
 }
 
 

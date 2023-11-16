@@ -28,8 +28,8 @@ void WifiStateIdle::init(WifiController *p_Controller)
 {
   debug.println(Debug::Info, "WIFI state: idle");    
 
-  if(p_Controller && p_Controller->getStateAction())
-    p_Controller->getStateAction()->idle();
+  if(p_Controller && p_Controller->getAction())
+    p_Controller->getAction()->idle();
 
   WiFi.disconnect();
 }
@@ -55,8 +55,8 @@ void WifiStateError::init(WifiController *p_Controller)
 {
   debug.println(Debug::Info, "WIFI state: error");    
 
-  if(p_Controller && p_Controller->getStateAction())
-    p_Controller->getStateAction()->error();  
+  if(p_Controller && p_Controller->getAction())
+    p_Controller->getAction()->error();  
 }
 
 
@@ -96,8 +96,8 @@ void WifiStateConnecting::init(WifiController *p_Controller)
 
   debug.println(Debug::Info, "WIFI state: Connecting");    
 
-  if(p_Controller->getStateAction())
-    p_Controller->getStateAction()->connecting();
+  if(p_Controller->getAction())
+    p_Controller->getAction()->connecting();
 
   if(WL_CONNECTED==WiFi.status())
     WiFi.disconnect();
@@ -168,8 +168,8 @@ void WifiStateConnected::init(WifiController *p_Controller)
 
   debug.println(Debug::Info, "WIFI state: connected");    
 
-  if(p_Controller->getStateAction())
-    p_Controller->getStateAction()->connected();
+  if(p_Controller->getAction())
+    p_Controller->getAction()->connected();
 }
 
 
@@ -182,8 +182,8 @@ void WifiStateConnected::loop(WifiController *p_Controller)
   {
     debug.println(Debug::Info, "WLAN connection lost");
 
-    if(p_Controller->getStateAction())
-      p_Controller->getStateAction()->disconnected();
+    if(p_Controller->getAction())
+      p_Controller->getAction()->disconnected();
     p_Controller->setState(WifiState::Connecting);     
   }
 }
@@ -201,10 +201,10 @@ WifiState::EState WifiStateConnected::getState(void)
 /*     implementation of INTERFACE                   */
 /*****************************************************/
 
-WifiController::WifiController(WifiSettings *p_Settings, WifiStateAction *p_StateAction)
+WifiController::WifiController(WifiSettings *p_Settings, WifiAction *p_Action)
   : mp_Settings{p_Settings} 
   , mp_CurrentState{&m_StateIdle}
-  , mp_StateAction{p_StateAction}
+  , mp_Action{p_Action}
   , mac_CurrentSSID{""}
 {
 }
@@ -222,15 +222,15 @@ WifiSettings *WifiController::getSettings(void)
 }
 
 
-void WifiController::setStateAction(WifiStateAction *p_StateAction)
+void WifiController::setAction(WifiAction *p_Action)
 {
-  mp_StateAction = p_StateAction;
+  mp_Action = p_Action;
 }
 
 
-WifiStateAction *WifiController::getStateAction(void)
+WifiAction *WifiController::getAction(void)
 {
-  return mp_StateAction;
+  return mp_Action;
 }
 
 
