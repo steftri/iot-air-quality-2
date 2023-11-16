@@ -9,13 +9,15 @@ With this project you have a good starting point to create your own internet-of-
 ## Features
 
  * *Configurable*: The WIFI network and the MQTT broker needed for the IoT functionality can be configured via the serial interface without the need of re-compiling and deploying the source code.
- * *Error tolerant*: The device is able to reconnect to a MIFI network or to the MQTT broker after a loss of connection occured without the need to reboot the device.
+ * *Error tolerant*: The device is able to reconnect to a WIFI network or to the MQTT broker after a loss of connection occured without the need to reboot the device.
  * *CRC data protection*: The settings stored in the flash of the device are protected by a 32bit CRC.  
  * *MVC architecture*: The software is seperated in to the _model_ with the data used by the controller, the _view_ providing the text-based user interface (shell commands) and the _controller_, which holds the modules responsible for handling the functionality and to glue everything together.  
 
 ## Short IoT introduction
 
 The Internet of things (IoT) describes devices with sensors or actuators which are able to connect to other devices over the internet. For that purpose, each IoT device connects to an _MQTT broker_ -- an internet server which is responsible to collect and forward messages to other devices. 
+
+![IoT overview](doc/iot_overview.png)
 
 ### Providing information
 An IoT device can send messages to a specific _topic_ to the broker. The broker than distributes the information further. For example, a IoT thermometer can provide the messured temperature and humidity to the world.  
@@ -40,7 +42,28 @@ TODO
 ## wifi connect
 
 
+# MQTT message interface
 
+UID = 30973702185336
+
+Topic: iotdevice/30973702185336/command
+Message: 
+```
+{"operation":"setled","number":0,"value":1}
+```
+
+
+Topic: iotdevice
+```
+{"uid":30973702185336,"analog":1.379633665}
+```
+
+# Electrical interfaces
+
+WIFI-LED: GPIO 2 
+MQTT-LED: GPIO 16
+USER-LED: GPIO 17
+Analog in: GPIO 32 (ADC1_CH4)
 
 
 # Software Architecture
@@ -68,17 +91,23 @@ TODO
 
 ### WIFI controller
 
-![Class diagram](doc/class_diagram_controller_wifi.png)
-![State diagram](doc/state_diagram_controller_wifi.png)
+![WIFI class diagram](doc/class_diagram_controller_wifi.png)
+![WIFI state diagram](doc/state_diagram_controller_wifi.png)
 
 #### WIFI actions
 
 ### MQTT controller
 
-![Class diagram](doc/class_diagram_controller_mqtt.png)
-![State diagram](doc/state_diagram_controller_mqtt.png)
+![MQTT class diagram](doc/class_diagram_controller_mqtt.png)
+![MQTT state diagram](doc/state_diagram_controller_mqtt.png)
 
 #### MQTT actions
+
+
+
+## Bootup process
+
+![Bootup activity diagram](doc/activitiy_diagram_bootup.png)
 
 
 # SOUP
@@ -102,19 +131,24 @@ TODO
 # Development tools
 
 ## Visual Studio Code
+1.77.3
 
 ## VSCode plugin C/C++
+1.18.3
 
 ## VSCode plugin PlatformIO IDE
+3.1.1
 
 ## VSCode plugin PlantUML
-
+2.17.5
 
 
 
 # Additional information
 
 ## Create a new project based on this IoT skeleton application
+
+TODO
 
 To use *wiring-skeleton* as a template for a new project, it has to be forked locally.
 

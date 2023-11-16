@@ -1,0 +1,12 @@
+@startuml
+
+skinparam componentStyle rectangle
+
+cloud {
+  [MQTT broker] <-down-> [Websocket client]
+}
+
+[IoT-device 1] <-> [MQTT broker] : MQTT
+[MQTT broker] <-> [IoT-device 2] : MQTT
+
+@enduml

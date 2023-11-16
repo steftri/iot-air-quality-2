@@ -1,0 +1,35 @@
+@startuml
+
+
+start
+
+:read settings;
+
+split
+
+
+repeat :read Values;
+
+:send MQTT data message;
+
+repeat while ()
+
+stop
+
+split again
+
+repeat
+  :connect WIFI;
+repeat while (WIFI connected?) is (no) not (yes);
+
+repeat
+  :connect MQTT broker;
+repeat while (MQTT connected?) is (no) not (yes);
+
+:register MQTT topics;
+
+:send MQTT bootup message;
+
+stop
+
+@enduml
