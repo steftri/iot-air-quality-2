@@ -60,10 +60,15 @@ Topic: iotdevice
 
 # Electrical interfaces
 
-WIFI-LED: GPIO 2 
-MQTT-LED: GPIO 16
-USER-LED: GPIO 17
-Analog in: GPIO 32 (ADC1_CH4)
+* WIFI-LED: GPIO 2 
+* MQTT-LED: GPIO 16
+* USER-LED: GPIO 17
+* Analog in: GPIO 32 (ADC1_CH4)
+
+
+# Bootup process
+
+![Bootup activity diagram](doc/activity_diagram_bootup.png)
 
 
 # Software Architecture
@@ -105,9 +110,6 @@ Analog in: GPIO 32 (ADC1_CH4)
 
 
 
-## Bootup process
-
-![Bootup activity diagram](doc/activitiy_diagram_bootup.png)
 
 
 # SOUP
