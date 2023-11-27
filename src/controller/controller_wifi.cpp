@@ -11,9 +11,13 @@
 #include "controller_wifi.h"
 
 
+#ifdef ESP8266
+#define CONNECTION_RETRY_INTERVAL     5000   // in ms; the ESP3266 needs significantly more time than the ESP32
+#else
+#define CONNECTION_RETRY_INTERVAL     1000   
+#endif
 
-#define CONNECTION_RETRY_INTERVAL     750   // in ms
-#define MAX_SAME_NETWORK_RETRY_COUNT    4
+#define MAX_SAME_NETWORK_RETRY_COUNT     3
 
 
 

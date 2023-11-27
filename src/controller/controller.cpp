@@ -225,7 +225,9 @@ ControllerFacade::ERc ControllerFacade::registerMqttTopic(const char *pc_Topic)
 
 ControllerFacade::ERc ControllerFacade::publishMqttMessage(const char *pc_Topic, const char *pc_Content, const uint8_t u8_QoS, const bool b_Retain)
 {
-  return (MqttController::Ok==m_MqttController.publish(pc_Topic, pc_Content, u8_QoS, b_Retain)?Ok:Error);
+  if(MqttState::Connected==m_MqttController.getState()) 
+    return (MqttController::Ok==m_MqttController.publish(pc_Topic, pc_Content, u8_QoS, b_Retain)?Ok:Error);
+  return Error; 
 }
 
 
