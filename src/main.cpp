@@ -38,6 +38,14 @@ void setup()
   Serial.println();
   Serial.println(PROJECT_NAME);
   Serial.println(__DATE__ ", " __TIME__);
+  Serial.print("LED WIFI: ");
+  Serial.println(LED_WIFI);
+  Serial.print("LED MQTT: ");
+  Serial.println(LED_MQTT);
+  Serial.print("LED USER1: ");
+  Serial.println(LED_USER1);
+  Serial.print("PIN_ANALOG_IN: ");
+  Serial.println(PIN_ANALOG_IN);
 
   myController.setup();
   myView.setup();

@@ -9,9 +9,10 @@
 
 #include <Arduino.h>
 
-LedIndicatorAdapter::LedIndicatorAdapter(const uint16_t u16_LedPin)
+LedIndicatorAdapter::LedIndicatorAdapter(const uint16_t u16_LedPin, const bool b_Inverted)
 {
   mu16_LedPin=u16_LedPin;
+  mb_Inverted = b_Inverted;
 
   // initialize built in LED pin as output
   pinMode(mu16_LedPin, OUTPUT);
@@ -30,10 +31,7 @@ void LedIndicatorAdapter::notifyStatusChange(bool status)
 
 void LedIndicatorAdapter::setLed(bool isOn)
 {
-#ifdef ESP8266
-  // the built-in LED logic on ESP8266 module is inverted!
-  if(mu16_LedPin==LED_BUILTIN)
+  if(mb_Inverted)
     isOn = !isOn;
-#endif
   digitalWrite(mu16_LedPin, isOn);
 }

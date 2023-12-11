@@ -2,9 +2,10 @@
 
 #include "controller_hw.h"  
   
-  
-#define LED_USER1   17  
-#define PIN_ANALOG  32
+
+// LED_USER1 and PIN_ANALOG_IN is defined in platformio.ini (different for each target)
+//#define LED_USER1   17  
+//#define PIN_ANALOG_IN  32
 
 
 void HwController::setup(void)
@@ -49,5 +50,9 @@ void HwController::setLed(const uint8_t u8_Led, bool b_On)
 
 float HwController::readAnalogValue(void)
 {
-  return static_cast<float>(analogRead(PIN_ANALOG))/4095.0*3.3;
+#ifdef ESP8266
+  return static_cast<float>(analogRead(PIN_ANALOG_IN))/1023.0*3.3;
+#else
+  return static_cast<float>(analogRead(PIN_ANALOG_IN))/4095.0*3.3;
+#endif
 }

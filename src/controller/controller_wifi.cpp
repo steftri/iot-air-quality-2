@@ -12,7 +12,7 @@
 
 
 #ifdef ESP8266
-#define CONNECTION_RETRY_INTERVAL     5000   // in ms; the ESP3266 needs significantly more time than the ESP32
+#define CONNECTION_RETRY_INTERVAL     10000   // in ms; the ESP3266 needs significantly more time than the ESP32
 #else
 #define CONNECTION_RETRY_INTERVAL     1000   
 #endif

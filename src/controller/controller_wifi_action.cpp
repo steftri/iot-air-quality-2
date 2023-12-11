@@ -6,12 +6,15 @@
 #include "LedIndicatorAdapter.h"
 
 
+// LED_WIFI is defined in platformio.ini (different for each target)
+//#define LED_WIFI    2    // LED_BUILTIN on ESP8266     
 
-#define LED_WIFI    2    // LED_BUILTIN on ESP8266     
+#ifndef LED_WIFI_INVERT 
+#define LED_WIFI_INVERT false
+#endif
 
 
-
-LedIndicatorAdapter myWifiIndicatorAdapter(LED_WIFI);
+LedIndicatorAdapter myWifiIndicatorAdapter(LED_WIFI, LED_WIFI_INVERT);
 Indicator myWifiIndicator(&myWifiIndicatorAdapter);
 
 
@@ -33,7 +36,7 @@ void MyWifiAction::connecting(void)
 
 void MyWifiAction::connected(void) 
 {
-  myWifiIndicator.set();
+  myWifiIndicator.set(); 
   myController.connectMqtt();
 }
 

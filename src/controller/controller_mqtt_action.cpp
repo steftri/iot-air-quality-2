@@ -6,14 +6,17 @@
 #include "LedIndicatorAdapter.h"
 
 
-#define LED_MQTT    16    
-   
+// LED_MQTT is defined in platformio.ini (different for each target)
+
+#ifndef LED_MQTT_INVERT 
+#define LED_MQTT_INVERT false
+#endif   
 
 #define MQTT_IOT_DEVICE_NAME "iotdevice"
 
 
 
-LedIndicatorAdapter myMqttIndicatorAdapter(LED_MQTT);
+LedIndicatorAdapter myMqttIndicatorAdapter(LED_MQTT, LED_MQTT_INVERT);
 Indicator myMqttIndicator(&myMqttIndicatorAdapter);
 
 
