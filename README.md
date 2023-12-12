@@ -1,71 +1,157 @@
 # Introduction
-Arduino Framework based IoT skeleton, using the [PlatformIO](http://platformio.org) cross-platform build system.
 
-The project is able to run and has been tested on the [ESP32 NODEMCU](https://www.az-delivery.de/en/products/esp32-developmentboard) controller board. It could be easily ported to many other controller boards, as long as the Arduino/PlatformIO Framework is used and the controller is able to access WIFI.
+This IoT skeleton, based on the Arduino Framework, leverages the [PlatformIO](http://platformio.org) cross-platform build system. It facilitates IoT network connectivity and includes functionality to illuminate a custom user LED through MQTT commands and provide the measured voltage on an analog pin as a usage example.
+
+The project is compatible with and has been tested on various ESP8266 and ESP32-based controller boards. It is easily adaptable to many other controller boards, provided they support the Arduino/PlatformIO Framework and have WiFi capabilities.
 
 ## Intended Use
-With this project you have a good starting point to create your own Arduino basedd internet-of-things application. 
+
+This project serves as a robust foundation for creating Arduino-based Internet of Things (IoT) applications.
 
 ## Features
 
- * *Configurable*: The WIFI network and the MQTT broker needed for the IoT functionality can be configured via the serial interface without the need of re-compiling and deploying the source code.
- * *Error tolerant*: The device is able to reconnect to a WIFI network or to the MQTT broker after a loss of connection occured without the need to reboot the device.
- * *CRC data protection*: The settings stored in the flash of the device are protected by a 32bit CRC.  
- * *MVC architecture*: The software is seperated in to the _model_ with the data used by the controller, the _view_ providing the text-based user interface (shell commands) and the _controller_, which holds the modules responsible for handling the functionality and to glue everything together.
- * *Few module dependencies*: The software modules are highly independent from each other.    
+ * *Configurable:* Easily configure the WIFI network and MQTT broker required for IoT functionality via the serial interface without recompiling and deploying the source code.
+ * *Error Tolerant:* The device autonomously reconnects to a WIFI network or MQTT broker after a loss of connection without requiring a device reboot.
+ * *CRC Data Protection:* Settings stored in the device's flash memory are protected by a 32-bit CRC.
+ * *MVC Architecture:* The software is structured into the _model_ containing data used by the controller, the _view_ providing the text-based user interface (shell commands), and the _controller_, which manages functionality and integrates modules.
+ * *Few Module Dependencies:* Software modules exhibit high independence from each other.  
 
 ## Short IoT introduction
 
-The Internet of things (IoT) describes devices with sensors or actuators which are able to connect to other devices over the internet. For that purpose, each IoT device connects to an _MQTT broker_ -- an internet server which is responsible to collect and forward messages to other devices. 
+The Internet of Things (IoT) refers to devices equipped with sensors or actuators capable of connecting to other devices over the internet. Each IoT device connects to an _MQTT broker_, an internet server responsible for collecting and forwarding messages to other devices.
 
 ![IoT overview](doc/iot_overview.png)
 
-An example MQTT server which can be used for test purposes is [broker.hivemq.com], with the TCP port 1883 (this is also the default port). A web interface for test purposes is also available here: [MQTT browser client](https://www.hivemq.com/demos/websocket-client/).
+An example MQTT server which can be used for test purposes is [broker.hivemq.com]with the default TCP port 1883. A web interface for testing is available here: [MQTT browser client](https://www.hivemq.com/demos/websocket-client/).
 
 ### Providing information
-An IoT device can send messages to a specific _topic_ to the broker. The broker than distributes the information further. For example, a IoT thermometer can provide the messured temperature and humidity to the world. 
+
+An IoT device can send messages to a specific _topic_ to the broker, which then distributes the information. For instance, an IoT thermometer can provide measured temperature and humidity to the world.
 
 ### Receiving information
-An IoT device can register _topics_ which it is interested to receive. The MQTT broker then sends each message with this topic, which it receives from other devices, also to this device. 
+
+An IoT device can register topics of interest to receive relevant messages. The MQTT broker forwards messages with these topics from other devices to the subscribed device.
 
 
-# User interface
+# Hardware
 
-For using the IoT device in an own environment, at least the WIFI network and the MQTT broker which is to be used must be configured. 
+A configuration exists for the following boards: 
+
+## nodemcu
+![ESP8266 NodeMCU Lua Amica Modul V2](doc/NodeMCU_Amica_250x125.png)
+
+Az-Delivery: [ESP8266 NodeMCU Lua Amica Modul V2](https://www.az-delivery.de/products/nodemcu)
+
+## d1_mini
+![ESP8266 D1 mini NodeMCU](doc/D1_mini_168x125.png)
+
+Az-Delivery: [ESP8266 D1 mini NodeMCU](https://www.az-delivery.de/products/d1-mini)
+
+## esp32doit-devkit
+![ESP32 NodeMCU Dev Kit C V2](doc/ESP32-WROOM-32_275x138.png)
+
+Az-Delivery: [ESP32 NodeMCU Dev Kit C V2](https://www.az-delivery.de/products/esp32-developmentboard)
+
+## lolin32
+![LOLIN32 Lite V1.0.0](doc/Lolin32_250x125.png)
+
+Az-Delivery: [LOLIN32 Lite V1.0.0](https://www.az-delivery.de/products/esp32-lolin-lolin32)
+
+## Comparison and Pin-out
+
+ |     | nodemcu | d1_mini | esp32doit-devkit | lolin32 |
+ |-----|---------|---------|---------------------|---------|
+ | size | 50 x 26 mm | 34 x 26 mm | 56 x 28 mm<br>(too large for<br>breadboard) | 50 x 26 mm |
+ | CPU | ESP8266-12E | ESP8266-12F | ESP32 | ESP32 rev1 |
+ | Cores | 1 | 1 | 2 | 2 |
+ | max Speed | 80 MHz | 80 MHz | 240 MHz | 240 MHz |
+ | LED WIFI | build-in,<br>D2 (inverted) | build-in,<br>D2 (inverted) | G22 | build-in,<br>22 (inverted) |
+ | LED MQTT | build-in,<br>D16 (inverted) | D16 | G16 | 16 |
+ | LED User1 | D5 | D5 | G5 | 5 |
+ | Analog in | A0 | A0 | G32 | 32 |
+
+The project could be easily ported to many other controller boards, as long as the Arduino/PlatformIO Framework is used and the controller is able to access WIFI.
 
 
+# User Interface
 
-## set wifi <SSID> <password>
+To utilize the IoT device within a custom environment, essential configurations include setting up the WIFI network and specifying the MQTT broker need to be performed.
 
-## set mqtt <broker> [<port>]
+To initiate this setup, follow these steps:
 
-## settings save
+1. *Driver Installation:*<br>
+   Ensure the installation of the CP210x Universal Windows Driver on your computer. This driver is pivotal for establishing communication between the device and your computer via USB.
 
-## wifi connect
+2. *Physical Connection:*<br>
+   Connect the IoT device to your computer using a USB connection.
+
+3. *Terminal Program Setup:*<br>
+   Utilize a terminal program, such as HTerm, to facilitate configuration. Configure the terminal program with the following settings:
+   * Baud Rate: 115200
+   * Data Format: 8N1 (8 data bits, no parity bit, 1 stop bit)
+   * Flow Control: None
+   * Line Ending for Reception: \r\n
+   * Command Termination: \r
+
+## Setting up the WIFI connection 
+
+To configure the WIFI network, use the follwing command:
+```
+set wifi <SSID> <password>
+```
+To connect to the configured network(s), use the following command:
+
+```
+wifi connect
+```
+
+Up to four networks can be configured. When a WIFI connection is requested, the device attempts to connect to the configured networks until a successful connection is established. 
+
+
+## Setting up the MQTT connection
+
+To configure the MQTT broker connection, use the follwing command:
+```
+set mqtt <broker>
+```
+To connect to the configured broker, use the following command:
+
+```
+mqtt connect
+```
+
+## Saving the configuration
+
+The settings are not stored automatically. To persistently store the settings in flash, use the following command:
+
+```
+settings save
+```
 
 
 # MQTT message interface
 
-UID = 30973702185336
+MQTT operates on a publish/subscribe model, wherein messages are the central components, comprising a topic (for data categorization) and a payload (housing the actual information).
 
-Topic: iotdevice/30973702185336/command
-Message: 
+Upon establishing an MQTT connection to the broker, the initial message is sent, containing the device's UID under the topic _"iotdevice"._
+
+Example: 
 ```
-{"operation":"setled","number":0,"value":1}
+{"uid":30973702185336}
 ```
 
+In routine operation, the device measures the voltage on the analog input pin and transmits it, along with the device's UID, under the same _"iotdevice"_ topic every 10 seconds. 
 
-Topic: iotdevice
+Example:
 ```
 {"uid":30973702185336,"analog":1.379633665}
 ```
 
-# Electrical interfaces
+To receive commands, the device subscribes to the _"iotdevice/30973702185336/command"_ topic on the broker. For demonstration purposes, the device supports the _"setled"_ operation, allowing users to switch on the user LED with the following message:
+```
+{"operation":"setled","number":0,"value":1}
+```
 
-* WIFI-LED: GPIO 2 
-* MQTT-LED: GPIO 16
-* USER-LED: GPIO 17
-* Analog in: GPIO 32 (ADC1_CH4)
 
 
 # Bootup process
@@ -134,7 +220,8 @@ The following 3rd party software components are part of the excutable and are ha
 
 | Type | Software | Version | Manufacturer/Maintainer |
 | ---- | -------- | ------- | ------------------------| 
-| Platform | espressif32 | 6.3.1 | Espressif systems |
+| Platform (ESP8266 only) | espressif8266 | 4.2.0 | Espressif systems |
+| Platform (ESP32 only) | espressif32 | 6.3.1 | Espressif systems |
 | Package | framework-arduinoespressif32 | 3.20009.0 (2.0.9) | Espressif systems |
 | Library | CRC | 1.0.2 | Rob Tillaart |
 | Library | ArduinoMqttClient | 0.1.7 | Alexander Entinger |
