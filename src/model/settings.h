@@ -26,6 +26,7 @@ public:
   Settings(void);
 
   void begin(void);
+  void end(void);
 
   ERc save(void);
   ERc load(void);

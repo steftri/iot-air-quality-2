@@ -22,7 +22,7 @@ The Internet of Things (IoT) refers to devices equipped with sensors or actuator
 
 ![IoT overview](doc/iot_overview.png)
 
-An example MQTT server which can be used for test purposes is [broker.hivemq.com]with the default TCP port 1883. A web interface for testing is available here: [MQTT browser client](https://www.hivemq.com/demos/websocket-client/).
+An example MQTT server which can be used for test purposes is [broker.hivemq.com](broker.hivemq.com) with the default TCP port 1883. A web interface for testing is available here: [MQTT browser client](https://www.hivemq.com/demos/websocket-client/).
 
 ### Providing information
 
@@ -154,14 +154,9 @@ To receive commands, the device subscribes to the _"iotdevice/30973702185336/com
 
 
 
-# Bootup process
-
-![Bootup activity diagram](doc/activity_diagram_bootup.png)
-
-
 # Software Architecture
 
-The overal software architecture is the MVC architecture.
+The overarching software architecture adheres to the Model–View–Controller (MVC) design pattern.
 
 > Model–view–controller (MVC) is a software design pattern commonly used for 
 > developing user interfaces that divides the related program logic into 
@@ -170,20 +165,39 @@ The overal software architecture is the MVC architecture.
 > to and accepts it from the user, and the Controller software linking the two.
 > --- [Model-view-controller. (2023, November 20). In Wikipedia, The Free Encyclopedia. Retrieved 12:56, November 20, 2023](https://en.wikipedia.org/w/index.php?title=Model-view-controller)
 
-In this case, the _Model_ is responsible to hold and to store the configuration data in the internal flash memory of the ESP32 module. 
+In this context, the _Model_ is responsible for holding and storing configuration data in the internal flash memory of the ESP8266/ESP32 module using the Arduino framework.
 
-The _View_ is responsible for handling the 
+The _View_ manages the user interface, encompassing both the text-based command interface on the RS232/USB port and the MQTT command interface. The View features a viewFacade, the sole class accessed by the controller. The viewFacade, in turn, utilizes the Shell library, providing shell commands and MQTT commands.
 
+The _Controller_ offers a controllerFacade, the exclusive class accessed from the main function or the view. The controllerFacade initializes and utilizes the WIFI controller, MQTT controller, and the hardware controller, abstracting access to the actual hardware via the Arduino framework.
 
 ![Component diagram](doc/component_diagram.png)
 
+
 ## Model
 
-### settings
+Within the _Model_, the pivotal component is the Settings class, serving as the facade for all storable settings in the device. The separation of WIFI and MQTT settings into distinct classes enhances modularity and clarity. These classes facilitate configuration adjustments by the WIFI and MQTT controllers, each offering serialization and deserialization methods. This design ensures the Settings class can manage settings without delving into the internal structure of each.
+
+![Settings Class Diagram](doc/class_diagram_settings.png)
+
+### Settings
+
+The Settings class encompasses both WIFI and MQTT settings, providing methods for saving, loading, and clearing settings using the Arduino framework. Additionally, it supplies pointers to the WIFI and MQTT settings classes, directly utilized by the corresponding controllers.
 
 ### WIFI settings
 
+The WIFI settings class serves as the storage unit for the WIFI controller, accommodating up to four WIFI networks with SSID and password. The priority of networks is determined by their index, with the most recently added having the highest priority. If more than four settings are added, the earliest networks are discarded.   
+
 ### MQTT settings
+
+For the MQTT controller, the MQTT settings class serves as the storage entity, allowing configuration of the broker and port number (defaulting to 1883). 
+
+### Data storage in flash
+
+All settings are stored in flash, commencing with a magic number (0x1ACFFC1D) and a data version number. The WIFI settings, serialized by the WIFI settings class, precede the MQTT settings. The whole data settings section is protected by a 4-byte CRC. This approach ensures secure and organized storage of crucial device configurations.
+
+![Settings in Flash](doc/map_flash_settings.png)
+
 
 ## View
 
@@ -210,6 +224,10 @@ The _View_ is responsible for handling the
 
 #### MQTT actions
 
+
+# Bootup process
+
+![Bootup activity diagram](doc/activity_diagram_bootup.png)
 
 
 

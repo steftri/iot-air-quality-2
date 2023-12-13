@@ -1,0 +1,70 @@
+@startuml
+
+
+enum ERc
+{
+  Ok
+  Error
+} 
+
+struct WifiNetwork
+{
+  + SSID : char[]
+  + Password : char[]
+}
+
+
+class WifiSettings
+{
+  - Networks : WifiNetwork[]
+  - NetworkCount : uint8_t
+  ----
+  + init()
+  + setNetwork(SSID : char*, Password : char*)
+  + getNetworkCount() : uint8_t
+  + getNetworkSSID(Index : uint8_t) : char*
+  + getNetworkPassword(Index : uint8_t) : char*
+  ....
+  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
+  + unserialize(Buffer : uint8_t *, Size : uint16_t)
+}
+
+class MqttSettings
+{
+  - BrokerAddr : char[]
+  - BrokerPort : uint16_t
+  ----
+  + init()
+  + setBroker(Addr : char*, Port : uint16_t)
+  + getBrokerAddr() : char*
+  + getBrokerPort() : uint16_t
+  ....
+  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
+  + unserialize(Buffer : uint8_t *, Size : uint16_t)
+}
+
+
+
+class Settings
+{
+  - WifiSettings : WifiSettings 
+  - MqttSettings : MqttSettings 
+  ----
+  + Settings()
+  ....
+  + begin()
+  + end()
+  + save() : ERc
+  + load() : ERc
+  + clear()
+  ....
+  + getWifiSettings() : *WifiSettings
+  + getMqttSettings() : *MqttSettings
+}
+
+WifiSettings *-right- "4" WifiNetwork
+Settings *-up- WifiSettings
+Settings *-up- MqttSettings 
+Settings -left[hidden]- ERc
+
+@enduml

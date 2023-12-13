@@ -27,6 +27,11 @@ void Settings::begin(void)
 }
 
 
+void Settings::end(void)
+{
+}
+
+
 
 Settings::ERc Settings::save(void)
 {

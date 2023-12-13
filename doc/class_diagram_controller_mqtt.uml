@@ -71,23 +71,6 @@ interface MqttStateAction
 }
 
 
-
-
-class MqttSettings
-{
-  # BrokerAddr : char[]
-  # BrokerPort : uint16_t
-  ----
-  + init()
-  + setBroker(Addr : char*, Port : uint16_t)
-  + getBrokerAddr() : char*
-  + getBrokerPort() : uint16_t
-  ....
-  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
-  + unserialize(Buffer : uint8_t *, Size : uint16_t)
-}
-
-
 class MqttController
 {
   - Settings : MqttSettings* 
@@ -143,5 +126,15 @@ MqttSettings -left-o MqttController
 MqttStateAction -right-o MqttController
 
 note right of MqttState: design pattern "State"
+
+note right of MqttSettings: \
+The MqttSettings class is\n\
+a component of the Model, even\n\
+though it is highly connected\n\
+to the MqttController.\n\
+The owner of this class is\n\
+the Settings class.\n\
+Refer to the settings class\n\
+diagram for details. 
 
 @enduml

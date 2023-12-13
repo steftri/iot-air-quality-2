@@ -1,0 +1,31 @@
+@startjson
+{
+  "4 bytes" : "Magic (0x1ACFFC1D)",
+  "2 bytes" : "Version (2)",
+  "WifiSettings" : {
+    "1 byte" : "NetworkCount",
+    "32 bytes" : "SSID[0]", 
+    "63 bytes" : "Password[0]", 
+    "32 bytes" : "SSID[1]", 
+    "63 bytes" : "Password[1]", 
+    "32 bytes" : "SSID[2]", 
+    "63 bytes" : "Password[2]", 
+    "32 bytes" : "SSID[3]", 
+    "63 bytes" : "Password[3]"
+  },
+  "MqttSettings" : {
+    "64 bytes" : "BrokerAddr",
+    "2 bytes" : "BrokerPort"
+  },
+  "4 bytes" : "CRC32"
+}
+
+   
+
+
+
+
+
+
+
+@endjson

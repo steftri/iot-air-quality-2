@@ -65,29 +65,6 @@ interface WifiStateAction
 
 
 
-struct WifiNetwork
-{
-  + SSID : char[]
-  + Password : char[]
-}
-
-
-class WifiSettings
-{
-  # Networks : WifiNetwork[]
-  # NetworkCount : uint8_t
-  ----
-  + init()
-  + setNetwork(SSID : char*, Password : char*)
-  + getNetworkCount() : uint8_t
-  + getNetworkSSID(Index : uint8_t) : char*
-  + getNetworkPassword(Index : uint8_t) : char*
-  ....
-  + serialize(Buffer : uint8_t *, BufferSize : uint16_t) : uint16_t
-  + unserialize(Buffer : uint8_t *, Size : uint16_t)
-}
-
-
 class WifiController
 {
   - Settings : WifiSettings* 
@@ -138,10 +115,19 @@ WifiController *-up- WifiStateConnected
 WifiController *-up- WifiStateError
 WifiController o-up- WifiState
 
-WifiSettings *-right- WifiNetwork
 WifiSettings -left-o WifiController
 WifiStateAction -right-o WifiController
 
 note right of WifiState: design pattern "State"
+
+note right of WifiSettings: \
+The WifiSettings class is\n\
+a component of the Model, even\n\
+though it is highly connected\n\
+to the WifiController.\n\
+The owner of this class is\n\
+the Settings class.\n\
+Refer to the settings class\n\
+diagram for details. 
 
 @enduml
