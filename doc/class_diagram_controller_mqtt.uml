@@ -61,7 +61,7 @@ class MqttStateError
 } 
 
 
-interface MqttStateAction
+interface MqttAction
 {
   # {abstract} idle()
   # {abstract} connecting()
@@ -81,15 +81,15 @@ class MqttController
   - StateError : MqttStateError
   ....
   - CurrentState : MqttState*
-  - StateAction : MqttStateAction* 
+  - Action : MqttAction* 
   ....
   - TopicReceivedCallback : void (*)(Topic : char*, Content : char*)
   ----
-  + MqttController(p_Settings : MqttSettings*, p_StateAction : MqttStateAction*)
+  + MqttController(p_Settings : MqttSettings*, p_Action : MqttAction*)
   + setSettings(p_Settings : MqttSettings*)
   + getSettings() : MqttSettings*
-  + setStateAction(p_StateAction : MqttStateAction*)
-  + getStateAction() : MqttStateAction*
+  + setAction(p_Action : MqttAction*)
+  + getAction() : MqttAction*
   + setTopicReceivedCallback(Callback : void (*)(Topic : char*, Content : char*))
   ....
   + setup()
@@ -123,7 +123,7 @@ MqttController *-up- MqttStateError
 MqttController o-up- MqttState
 
 MqttSettings -left-o MqttController
-MqttStateAction -right-o MqttController
+MqttAction -right-o MqttController
 
 note right of MqttState: design pattern "State"
 

@@ -54,7 +54,7 @@ class WifiStateError
 } 
 
 
-interface WifiStateAction
+interface WifiAction
 {
   # {abstract} idle()
   # {abstract} connecting()
@@ -75,15 +75,15 @@ class WifiController
   - StateError : WifiStateError
   ....
   - CurrentState : WifiState*
-  - StateAction : WifiStateAction* 
+  - Action : WifiAction* 
   ....
   - CurrentSSID : char*
   ----
-  + WifiController(p_Settings : WifiSettings*, p_StateAction : WifiStateAction*)
+  + WifiController(p_Settings : WifiSettings*, p_Action : WifiAction*)
   + setSettings(p_Settings : WifiSettings*)
   + getSettings() : WifiSettings*
-  + setStateAction(p_StateAction : WifiStateAction*)
-  + getStateAction() : WifiStateAction*
+  + setAction(p_Action : WifiAction*)
+  + getAction() : WifiAction*
   ....
   + setup()
   + loop()
@@ -116,7 +116,7 @@ WifiController *-up- WifiStateError
 WifiController o-up- WifiState
 
 WifiSettings -left-o WifiController
-WifiStateAction -right-o WifiController
+WifiAction -right-o WifiController
 
 note right of WifiState: design pattern "State"
 
