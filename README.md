@@ -323,13 +323,13 @@ To use *iot-arduino* as a template for a new project, it has to be forked locall
 1. Within a **Git Bash:**
    1. Clone the *iot-arduino* skeleton as a **bare repository**:
    ```bash
-      git clone --bare git@ssh.dev.azure.com:v3/erniegh/ERNI-SmartFactory/iot-arduino
+      git clone --bare https://erniegh@dev.azure.com/erniegh/ERNI-SmartFactory/_git/iot-arduino
    ```
    2. Replace origin with the one for your new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
       cd ./iot-arduino.git
       git remote rm origin
-      git remote add origin git@github.com:your-name/my-iot-device.git
+      git remote add origin https://github.com/your-name/my-iot-device.git
    ```
    3. Push the bare repo as a **mirror** to your new origin:
    ```bash
@@ -338,7 +338,7 @@ To use *iot-arduino* as a template for a new project, it has to be forked locall
    4. Clone the new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
       cd ..
-      git clone git@github.com:your-name/my-iot-device.git
+      git clone https://github.com/your-name/my-iot-device.git
    ```
    5. Remove the bare *iot-arduino* template project:
    ```bash
