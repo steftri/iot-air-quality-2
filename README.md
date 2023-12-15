@@ -194,7 +194,7 @@ For the MQTT controller, the MQTT settings class serves as the storage entity, a
 
 ### Data storage in flash
 
-All settings are stored in flash, commencing with a magic number (`0x1ACFFC1D`) and a data version number. The WIFI settings, serialized by the WIFI settings class, precede the MQTT settings. The whole data settings section is protected by a 4-byte CRC. This approach ensures secure and organized storage of crucial device configurations.
+All settings are stored in flash, commencing with a magic number (`0x1ACFFC1D`) and a data version number. The WIFI settings, serialized by the WIFI settings class, precede the MQTT settings. The whole data settings section beginning with the version is protected by a CRC32. This approach ensures secure and organized storage of crucial device configurations.
 
 ![Settings in Flash](doc/map_flash_settings.png)
 
@@ -238,9 +238,9 @@ For convenient utilization, the class offers setup() and loop() methods, resembl
 
 ### WIFI controller
 
-The WIFI controller adheres to the state machine design pattern. Within the main WifiController class, the implemented WIFI states—Idle, Connecting, Connected, and Error—are composed. All these states inherit from the interface class WifiState. The WIFI controller also maintains a WifiState pointer, representing the active state among the four. Wifi settings are stored in the WifiSettings class, a component of the model within the MVC architecture.
+The WIFI controller adheres to the state machine design pattern. Within the main `WifiController` class, the implemented WIFI states—Idle, Connecting, Connected, and Error—are composed. All these states inherit from the interface class `WifiState`. The WIFI controller also maintains a WifiState pointer, representing the active state among the four. Wifi settings are stored in the `WifiSettings` class, a component of the model within the MVC architecture.
 
-To facilitate a response to a state change, a WifiStateAction interface class is defined. Consequently, the Wifi controller has no dependencies except for the Arduino WIFI driver. For reacting to an established connection, the `WifiStateAction` class is implemented and communicated to the WIFI controller. This action class manages the control of the WIFI LED and initiates the MQTT connection.
+To facilitate a response to a state change, a WifiAction interface class is defined. Consequently, the Wifi controller has no dependencies except for the Arduino WIFI driver. For reacting to an established connection, the `WifiAction` class is implemented and communicated to the WIFI controller. This action class manages the control of the WIFI LED and initiates the MQTT connection.
 
 ![WIFI class diagram](doc/class_diagram_controller_wifi.png)
 
@@ -255,16 +255,26 @@ Within the `loop()` method, the controller attempts to connect to the specified 
 
 ### MQTT controller
 
-![MQTT class diagram](doc/class_diagram_controller_mqtt.png)
-![MQTT state diagram](doc/state_diagram_controller_mqtt.png)
+The MQTT controller works similar to the WIFI controller. It also adheres to the state machine design pattern. Within the main `MqttController` class, the implemented MQTT states—Idle, Connecting, Connected, and Error—are composed. All these states inherit from the interface class `MqttState`. The MQTT controller also maintains a MqttState pointer, representing the active state among the four. Mqtt settings are stored in the MqttSettings class, a component of the model within the MVC architecture. 
 
+![MQTT class diagram](doc/class_diagram_controller_mqtt.png)
+
+The MQTT controller state machine initializes in the idle state. To transition to the connecting state, the controller requires knowledge of the settings class, conveyed either through the constructor or the `setSettings()` method. The connection process is initiated by calling the `begin()` method. This is done in the implementation of the `WifiAction::connected()` method.
+
+Within the `loop()` method, the controller attempts to connect to the MQTT broker. Upon successfully establishing a connection, the state transitions to the connected state and remains in this state as long as the connection is active. In the event of a connection loss, the controller reverts to the connecting state.
+
+![MQTT state diagram](doc/state_diagram_controller_mqtt.png)
 
 
 # Bootup process
 
+Upon device startup, the construction of all globally declared classes is initiated. It is noteworthy that the constructors of these classes exclusively entail the execution of initialization code, without the inclusion of functional operations.
+
+The utilization of the Arduino framework necessitates consideration of two fundamental functions: `setup()` and `loop()`. Following conventional practices, the RS232 connection is configured as a priority. Pertinent information, such as the project's name, the compilation date of the main function and information about the pin setup, is transmitted via the serial line. Subsequently, the setup methods of the facade classes associated with both the view and the controller are invoked. These methods perform the further configuration of the system, primarily involving the retrieval of settings from flash memory and their dissemination to the corresponding controllers. As the conclusive step in the setup phase, the activation of the connection state of the WIFI controller takes place.
+
+It is crucial to acknowledge that preemptive multitasking is not employed within this IoT skeleton. Instead, a semi-parallel execution model is achieved by invoking the loop methods of all controllers and views. To ensure efficient management within these loop methods, the state machine design pattern is utilized (see above for details).
+
 ![Bootup activity diagram](doc/activity_diagram_bootup.png)
-
-
 
 
 # SOUP
@@ -306,33 +316,32 @@ The following tools and drivers are used for development:
 
 ## Create a new project based on this IoT skeleton application
 
-TODO
+To use *iot-arduino* as a template for a new project, it has to be forked locally.
 
-To use *wiring-skeleton* as a template for a new project, it has to be forked locally.
-
-1. On **GitHub:** create new repository, i.e. *my-test*
-2. Within a **Git Bash:**
-   1. Clone the *wiring-skeleton* as a **bare repository**:
+1. On **GitHub:** Create a new repository, i.e. *my-iot-device*
+   
+1. Within a **Git Bash:**
+   1. Clone the *iot-arduino* skeleton as a **bare repository**:
    ```bash
-      git clone --bare git@github.com:ERNICommunity/wiring-skeleton.git
+      git clone --bare git@ssh.dev.azure.com:v3/erniegh/ERNI-SmartFactory/iot-arduino
    ```
-   2. Replace origin with the one for your new project (i.e. project *my-test*, with *your-name* as GitHub user name):
+   2. Replace origin with the one for your new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
-      cd ./wiring-skeleton.git
+      cd ./iot-arduino.git
       git remote rm origin
-      git remote add origin git@github.com:your-name/my-test.git
+      git remote add origin git@github.com:your-name/my-iot-device.git
    ```
    3. Push the bare repo as a **mirror** to your new origin:
    ```bash
       git push --mirror
    ```
-   4. Clone the new project (i.e. project *my-test*, with *your-name* as GitHub user name):
+   4. Clone the new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
       cd ..
-      git clone git@github.com:your-name/my-test.git
+      git clone git@github.com:your-name/my-iot-device.git
    ```
-   5. Remove the bare *wiring-skeleton* template project:
+   5. Remove the bare *iot-arduino* template project:
    ```bash
-      rm -rf ./wiring-skeleton.git
+      rm -rf ./iot-arduino.git
    ```
 
