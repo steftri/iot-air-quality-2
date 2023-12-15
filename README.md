@@ -133,22 +133,22 @@ settings save
 
 MQTT operates on a publish/subscribe model, wherein messages are the central components, comprising a topic (for data categorization) and a payload (housing the actual information).
 
-Upon establishing an MQTT connection to the broker, the initial message is sent, containing the device's UID under the topic _"iotdevice"._
+Upon establishing an MQTT connection to the broker, the initial message is sent, containing the device's UID under the topic `iotdevice`. This UID must be used to address the device when sending commands.
 
-Example: 
-```
+Example:
+```json
 {"uid":30973702185336}
 ```
 
-In routine operation, the device measures the voltage on the analog input pin and transmits it, along with the device's UID, under the same _"iotdevice"_ topic every 10 seconds. 
+In routine operation, the device measures the voltage on the analog input pin and transmits it, along with the device's UID, under the same `iotdevice` topic every 10 seconds. 
 
 Example:
-```
+```json
 {"uid":30973702185336,"analog":1.379633665}
 ```
 
-To receive commands, the device subscribes to the _"iotdevice/30973702185336/command"_ topic on the broker. For demonstration purposes, the device supports the _"setled"_ operation, allowing users to switch on the user LED with the following message:
-```
+To receive commands, the device subscribes to the `"iotdevice/<UID>/command"` topic on the broker. For demonstration purposes, the device supports the `setled` operation, allowing users to switch on the user LED with the following message:
+```json
 {"operation":"setled","number":0,"value":1}
 ```
 
@@ -176,7 +176,7 @@ The _Controller_ offers a controllerFacade, the exclusive class accessed from th
 
 ## Model
 
-Within the _Model_, the pivotal component is the Settings class, serving as the facade for all storable settings in the device. The separation of WIFI and MQTT settings into distinct classes enhances modularity and clarity. These classes facilitate configuration adjustments by the WIFI and MQTT controllers, each offering serialization and deserialization methods. This design ensures the Settings class can manage settings without delving into the internal structure of each.
+Within the _Model_, the pivotal component is the Settings class, serving as the facade for all storable settings in the device. The separation of WIFI and MQTT settings into distinct classes enhances modularity and clarity. These classes contain the configuration of the WIFI and MQTT controllers, each offering serialization and deserialization methods. This design ensures the Settings class can manage settings without delving into the internal structure of each.
 
 ![Settings Class Diagram](doc/class_diagram_settings.png)
 
@@ -194,35 +194,70 @@ For the MQTT controller, the MQTT settings class serves as the storage entity, a
 
 ### Data storage in flash
 
-All settings are stored in flash, commencing with a magic number (0x1ACFFC1D) and a data version number. The WIFI settings, serialized by the WIFI settings class, precede the MQTT settings. The whole data settings section is protected by a 4-byte CRC. This approach ensures secure and organized storage of crucial device configurations.
+All settings are stored in flash, commencing with a magic number (`0x1ACFFC1D`) and a data version number. The WIFI settings, serialized by the WIFI settings class, precede the MQTT settings. The whole data settings section is protected by a 4-byte CRC. This approach ensures secure and organized storage of crucial device configurations.
 
 ![Settings in Flash](doc/map_flash_settings.png)
 
 
 ## View
 
-### view facade
+The View component encompasses two key classes: one responsible for managing shell commands and another for interpreting and handling commands received through the MQTT protocol. Additionally, the View includes the viewFacade class, serving as the sole API accessed by the controller modules.
+
+### View facade
+
+The `ViewFacade` class offers an API for the controllers. It features a setup method to handle the registration of shell commands, a loop method for runtime actions needed for proper user interface functionality, and various callback functions essential for user interface interactions. Notably, the viewFacade provides a callback for handling incoming MQTT messages, along with general callbacks for the shell command interface (e.g., methods to display the shell prompt or return codes from shell commands). This modular approach ensures efficient and streamlined communication between the View and the controllers.
 
 ### Shell commands
+
+The `ViewShellCommands` class serves as the container for available shell commands. The API design of these commands utilizes a familiar parameter mechanism, akin to the main function. Each command method takes the number of given parameters as the first argument, with the parameters provided as an array of character pointers (including the command name as the first parameter) as a second argument.
+
+Example:
+```c++
+int cmdHelp(int argc, char *argv[]);
+```
+
+The character stream received from the serial interface within the viewFacades' loop method is forwarded to the external [shell library](https://github.com/steftri/shell). This library parses the input string, segments it into null-terminated parameter strings, and subsequently invokes the corresponding command callback.
+
+### MQTT commands
+
+The `ViewMqttComands` class serves as a container for operations requested by the MQTT command topic. Due to the MQTT library forwarding solely the content of received topics, this class also incorporates a parser, called by the callback method `onMqttTopicReceived` from the class `ViewFacade`. The parser's role is to initially extract the JSON-formatted message content and subsequently invoke the relevant command callback. 
 
 
 ## Controller
 
-### controller facade
+
+The _controller_ is responsible for maintaining the persistence of both WIFI and MQTT connections and cyclically executing voltage measurements on the analog input pin for demonstration purposes. Furthermore, the controller links to the _model_ (responsible for storing settings) and the _view_ (handling user interface interactions).
+
+
+### Controller facade
+
+The ControllerFacade class serves as the singular and easy-to-use API for the device. All device functionalities are encapsulated within this class through various methods, including those dedicated to configuring WIFI and MQTT. These methods are designed for simplicity, merely invoking the corresponding functions from the hardware controller, WIFI controller, or MQTT controller classes.
+
+For convenient utilization, the class offers setup() and loop() methods, resembling the familiar structure of the Arduino framework. These methods are intentionally kept straightforward. The setup function involves loading settings, configuring the hardware, WIFI, and MQTT controllers, and initializing the WIFI connection if a WIFI network is configured. The loop method sequentially calls the respective loop methods in the hardware, WIFI, and MQTT controllers, reads the voltage on the analog pin, and initiates the publication of the measured value.
+
 
 ### WIFI controller
 
+The WIFI controller adheres to the state machine design pattern. Within the main WifiController class, the implemented WIFI states—Idle, Connecting, Connected, and Error—are composed. All these states inherit from the interface class WifiState. The WIFI controller also maintains a WifiState pointer, representing the active state among the four. Wifi settings are stored in the WifiSettings class, a component of the model within the MVC architecture.
+
+To facilitate a response to a state change, a WifiStateAction interface class is defined. Consequently, the Wifi controller has no dependencies except for the Arduino WIFI driver. For reacting to an established connection, the `WifiStateAction` class is implemented and communicated to the WIFI controller. This action class manages the control of the WIFI LED and initiates the MQTT connection.
+
 ![WIFI class diagram](doc/class_diagram_controller_wifi.png)
+
+After the setup process, the WIFI controller state machine initializes in the idle state. To transition to the connecting state, the controller requires knowledge of the settings class, conveyed either through the constructor or the `setSettings()` method. The connection process is initiated by calling the `begin()` method.
+
+Within the `loop()` method, the controller attempts to connect to the specified network. If this attempt fails three times, and alternative networks are available, the controller switches to the next network for connection attempts. Upon successfully establishing a connection, the state transitions to the connected state and remains in this state as long as the connection is active. In the event of a connection loss, the controller reverts to the connecting state.
+
 ![WIFI state diagram](doc/state_diagram_controller_wifi.png)
 
-#### WIFI actions
+
+
 
 ### MQTT controller
 
 ![MQTT class diagram](doc/class_diagram_controller_mqtt.png)
 ![MQTT state diagram](doc/state_diagram_controller_mqtt.png)
 
-#### MQTT actions
 
 
 # Bootup process
