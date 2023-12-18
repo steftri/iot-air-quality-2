@@ -277,6 +277,15 @@ It is crucial to acknowledge that preemptive multitasking is not employed within
 ![Bootup activity diagram](doc/activity_diagram_bootup.png)
 
 
+# Directory structure
+
+The source code is organized into three main directories. External libraries are housed in the "libdeps" directory. These libraries possess their own repositories and are imported during the compilation process.
+
+Within the "lib" directory, one can find all controllers, models, and views implemented in a generic manner. This structure aims to facilitate testability through integration tests.
+
+The "src" directory contains facade classes for controllers, models, and views, along with the software's entry point (main.cpp). Notably, the contents of this directory are excluded from compilation and linkage when executing integration tests.
+  
+
 # SOUP
 
 The following 3rd party software components are part of the excutable and are handeled as a SOUP (software of unknown provenance):
