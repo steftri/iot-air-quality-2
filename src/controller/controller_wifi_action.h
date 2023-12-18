@@ -1,7 +1,7 @@
 #ifndef _CONTROLLER_WIFI_ACTION_H_
 #define _CONTROLLER_WIFI_ACTION_H_
 
-#include "controller/controller_wifi.h"
+#include "controller_wifi.h"
 
 class MyWifiAction : public WifiAction
 {

@@ -4,12 +4,12 @@
 
 #include "model/settings.h"
 
-#include "controller/controller_hw.h"
+#include "controller_hw.h"
 
-#include "controller/controller_wifi.h"
+#include "controller_wifi.h"
 #include "controller/controller_wifi_action.h"
 
-#include "controller/controller_mqtt.h"
+#include "controller_mqtt.h"
 #include "controller/controller_mqtt_action.h"
 
 #include "view/view.h"

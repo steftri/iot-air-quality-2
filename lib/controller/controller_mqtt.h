@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "model/model_mqtt_settings.h"
+#include "model_mqtt_settings.h"
 
 
 #define MAX_MQTT_MESSAGE        256
