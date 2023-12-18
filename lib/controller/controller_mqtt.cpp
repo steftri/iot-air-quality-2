@@ -330,7 +330,9 @@ MqttController::ERc MqttController::registerTopic(const char *pc_Topic)
   snprintf(ac_Dbg, sizeof(ac_Dbg), "Registering MQTT topic '%s'", pc_Topic);
   debug.println(Debug::Info, ac_Dbg);
 
-  return (MQTT_SUCCESS==myMqttClient.subscribe(pc_Topic))?Ok:Error;
+  // return (MQTT_SUCCESS==myMqttClient.subscribe(pc_Topic))?Ok:Error;   // does not work????
+  myMqttClient.subscribe(pc_Topic);
+  return Ok;
 }
 
 

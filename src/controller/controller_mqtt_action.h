@@ -1,7 +1,7 @@
 #ifndef _CONTROLLER_MQTT_ACTION_H_
 #define _CONTROLLER_MQTT_ACTION_H_
 
-#include "controller/controller_mqtt.h"
+#include "controller_mqtt.h"
 
 class MyMqttAction : public MqttAction
 {

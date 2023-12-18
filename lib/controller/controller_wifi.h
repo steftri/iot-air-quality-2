@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "model/model_wifi_settings.h"
+#include "model_wifi_settings.h"
 
 
 class WifiController;

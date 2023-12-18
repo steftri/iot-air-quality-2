@@ -1,5 +1,5 @@
 /*
- *  spacecraft using SECCT
+ *  IOT skeleton for arduino-based ESP8266/ESP32 devices
  *
  *  main.cpp
  *
@@ -12,19 +12,10 @@
 #include <Arduino.h>
 #include <SpinTimer.h>      // see https://github.com/dniklaus/spin-timer
 
-#ifdef ESP8266
-#include <ESP8266WiFi.h>
-#else
-#include <WiFi.h>
-#endif
-
 
 #include "model/settings.h"
 #include "controller/controller.h"
 #include "view/view.h"
-
-
-#include "LedIndicatorAdapter.h"
 
 
 
