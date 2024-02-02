@@ -321,18 +321,33 @@ The following tools and drivers are used for development:
 | Merge Tool | P4Merge | 2023.1/2419860 | Perforce |
 
 
+# Changelog 
+
+## v2.0.0
+
+Date: 2024-02-03
+
+ * VSCode based solution
+ * configurable (WIFI network, broker address) during runtime
+ * repository name changed to iot-arduino-skeleton
+
+## v1.0.0
+
+ * Arduino IDE based solution
+
+
 # Additional information
 
 ## Create a new project based on this IoT skeleton application
 
-To use *iot-arduino* as a template for a new project, it has to be forked locally.
+To use *iot-arduino-skeleton* as a template for a new project, it has to be forked locally.
 
 1. On **GitHub:** Create a new repository, i.e. *my-iot-device*
    
-1. Within a **Git Bash:**
-   1. Clone the *iot-arduino* skeleton as a **bare repository**:
+2. Within a **Git Bash:**
+   1. Clone the *iot-arduino-skeleton* as a **bare repository**:
    ```bash
-      git clone --bare https://erniegh@dev.azure.com/erniegh/ERNI-SmartFactory/_git/iot-arduino
+      git clone --bare https://erniegh@dev.azure.com/erniegh/ERNI-SmartFactory/_git/iot-arduino-skeleton
    ```
    2. Replace origin with the one for your new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
