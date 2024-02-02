@@ -351,7 +351,7 @@ To use *iot-arduino-skeleton* as a template for a new project, it has to be fork
    ```
    2. Replace origin with the one for your new project (i.e. project *my-iot-device*, with *your-name* as GitHub user name):
    ```bash
-      cd ./iot-arduino.git
+      cd ./iot-arduino-skeleton.git
       git remote rm origin
       git remote add origin https://github.com/your-name/my-iot-device.git
    ```
@@ -364,8 +364,8 @@ To use *iot-arduino-skeleton* as a template for a new project, it has to be fork
       cd ..
       git clone https://github.com/your-name/my-iot-device.git
    ```
-   5. Remove the bare *iot-arduino* template project:
+   5. Remove the bare *iot-arduino-skeleton* template project:
    ```bash
-      rm -rf ./iot-arduino.git
+      rm -rf ./iot-arduino-skeleton.git
    ```
 
